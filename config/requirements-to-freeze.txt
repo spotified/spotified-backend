@@ -1,0 +1,7 @@
+Django
+django-extensions
+raven
+django-model-utils
+psycopg2-binary
+-e  git+https://code.feld-m.de/intern/django-db-dump#egg=django-db-dump
+

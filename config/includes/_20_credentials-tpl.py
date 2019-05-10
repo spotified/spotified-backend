@@ -1,0 +1,14 @@
+# -*- coding: utf-8 -*-
+
+# DATABASE
+DB_NAME = "TBD"
+DB_USER = "TBD"
+DB_PASSWORD = "TBD"
+DB_HOST = "TBD"
+DB_PORT = "TBD"
+
+SPOTIFY_API_CLIENT_ID = "TBD"
+SPOTIFY_API_CLIENT_SECRET = "TBD"
+
+# SENTRY
+RAVEN_DSN = "https://TBD:TBD@sentry.io/TBD"
