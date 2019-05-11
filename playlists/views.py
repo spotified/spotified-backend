@@ -3,24 +3,32 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from spotipy import SpotifyException
 from utils.spotify import spotify_uri_or_link_to_id
 
+from . import serializers as se
 from .models import Artist, Playlist, PlaylistTracks, Track
-from .serializers import ArtistSerializer, PlaylistSerializer, TrackSerializer
 
 
 class PlaylistView(APIView):
-    def get(self, request, playlist_id, *args, **kwargs):
-        playlist_obj = get_object_or_404(Playlist, pk=playlist_id)
-        playlist = PlaylistSerializer(instance=playlist_obj)
-        return Response(playlist.data)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, playlist_id=None, *args, **kwargs):
+        if playlist_id:
+            playlist_obj = get_object_or_404(Playlist, pk=playlist_id)
+            playlist = se.PlaylistSerializer(instance=playlist_obj)
+            return Response(playlist.data)
+        else:
+            playlist_qs = Playlist.objects.all()
+            playlists = se.PlaylistOverviewSerializer(playlist_qs, many=True)
+            return Response(playlists.data)
 
     def post(self, request, *args, **kwargs):
         request.data["owner"] = request.user.pk
-        playlist = PlaylistSerializer(data=request.data)
+        playlist = se.PlaylistSerializer(data=request.data)
 
         if playlist.is_valid(raise_exception=True):
             playlist.save()
@@ -47,7 +55,7 @@ class PlaylistTrackView(APIView):
                     {"spotify_id": _("Track is local thus can't be added.")}
                 )
 
-            track = TrackSerializer(
+            track = se.TrackSerializer(
                 data={"spotify_id": track_info["id"], "name": track_info["name"]}
             )
 
@@ -59,7 +67,7 @@ class PlaylistTrackView(APIView):
                 try:
                     artist_obj = Artist.objects.get(spotify_id=track_info_artist["id"])
                 except Artist.DoesNotExist:
-                    artist = ArtistSerializer(
+                    artist = se.ArtistSerializer(
                         data={
                             "spotify_id": track_info_artist["id"],
                             "name": track_info_artist["name"],

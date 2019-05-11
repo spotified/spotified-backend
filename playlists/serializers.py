@@ -27,3 +27,9 @@ class PlaylistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
         fields = ("pk", "name", "owner", "tracks")
+
+
+class PlaylistOverviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Playlist
+        fields = ("pk", "name", "owner")
