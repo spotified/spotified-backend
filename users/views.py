@@ -48,4 +48,4 @@ class OAuthFlowFinish(APIView):
             )
 
         auth_token, created = Token.objects.get_or_create(user=user)
-        return Response({"auth_token": auth_token})
+        return Response({"auth_token": auth_token.key})

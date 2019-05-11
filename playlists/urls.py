@@ -1,7 +1,14 @@
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 app_name = "playlists"
 
-urlpatterns = [url(r"/", views.PlayList.as_view(), name="playlist")]
+urlpatterns = [
+    path("", views.PlaylistView.as_view(), name="playlists"),
+    path(
+        "<int:playlist_id>/tracks/",
+        views.PlaylistTrackView.as_view(),
+        name="playlist_track",
+    ),
+]

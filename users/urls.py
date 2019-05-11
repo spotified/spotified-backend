@@ -1,10 +1,10 @@
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 app_name = "users"
 
 urlpatterns = [
-    url(r"start/$", views.OAuthFlowStart.as_view(), name="auth_start"),
-    url(r"finish/$", views.OAuthFlowFinish.as_view(), name="auth_finish"),
+    path("start/", views.OAuthFlowStart.as_view(), name="auth_start"),
+    path("finish/", views.OAuthFlowFinish.as_view(), name="auth_finish"),
 ]
