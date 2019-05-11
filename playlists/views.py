@@ -44,15 +44,15 @@ class PlaylistTrackView(APIView):
         try:
             track_obj = Track.objects.get(spotify_id=track_spotify_id)
         except Track.DoesNotExist:
-            # fetch Song info
+            # fetch track info
             try:
                 track_info = request.user.spotify_api.track(track_spotify_id)
             except SpotifyException:
-                raise ValidationError({"spotify_id": _("Track unknown.")})
+                raise ValidationError({"spotify_id": _("Track unknown")})
 
             if track_info.get("is_local"):
                 raise ValidationError(
-                    {"spotify_id": _("Track is local thus can't be added.")}
+                    {"spotify_id": _("Track is local thus can't be added")}
                 )
 
             track = se.TrackSerializer(
@@ -62,6 +62,7 @@ class PlaylistTrackView(APIView):
             if track.is_valid(raise_exception=True):
                 track.save()
 
+            # save artists
             track_info_artists = track_info["album"].get("artists", [])
             for track_info_artist in track_info_artists:
                 try:
@@ -80,9 +81,11 @@ class PlaylistTrackView(APIView):
                 track.instance.artists.add(artist_obj)
                 track_obj = track.instance
 
+        # save playlist <-> track relation
         playlist_track_obj, created = PlaylistTracks.objects.get_or_create(
             playlist=playlist_obj, track=track_obj
         )
+
         if not created:
             raise ValidationError(
                 {"spotify_id": _("The track is already included in this playlist")}

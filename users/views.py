@@ -43,9 +43,7 @@ class OAuthFlowFinish(APIView):
             user.refresh_token = token_info["refresh_token"]
             user.save()
         except SpotifyOauthError:
-            raise ValidationError(
-                _("Authentication code is invalid. Please try again.")
-            )
+            raise ValidationError(_("Authentication code is invalid. Please try again"))
 
         auth_token, created = Token.objects.get_or_create(user=user)
         return Response({"auth_token": auth_token.key})
