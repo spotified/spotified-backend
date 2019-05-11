@@ -13,6 +13,11 @@ from .serializers import ArtistSerializer, PlaylistSerializer, TrackSerializer
 
 
 class PlaylistView(APIView):
+    def get(self, request, playlist_id, *args, **kwargs):
+        playlist_obj = get_object_or_404(Playlist, pk=playlist_id)
+        playlist = PlaylistSerializer(instance=playlist_obj)
+        return Response(playlist.data)
+
     def post(self, request, *args, **kwargs):
         request.data["owner"] = request.user.pk
         playlist = PlaylistSerializer(data=request.data)
@@ -67,5 +72,12 @@ class PlaylistTrackView(APIView):
                 track.instance.artists.add(artist_obj)
                 track_obj = track.instance
 
-        PlaylistTracks.objects.get_or_create(playlist=playlist_obj, track=track_obj)
+        playlist_track_obj, created = PlaylistTracks.objects.get_or_create(
+            playlist=playlist_obj, track=track_obj
+        )
+        if not created:
+            raise ValidationError(
+                {"spotify_id": _("The track is already included in this playlist")}
+            )
+
         return Response({})

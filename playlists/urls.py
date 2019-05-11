@@ -6,6 +6,7 @@ app_name = "playlists"
 
 urlpatterns = [
     path("", views.PlaylistView.as_view(), name="playlists"),
+    path("<int:playlist_id>/", views.PlaylistView.as_view(), name="playlist"),
     path(
         "<int:playlist_id>/tracks/",
         views.PlaylistTrackView.as_view(),
