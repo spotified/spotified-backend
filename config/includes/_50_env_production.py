@@ -4,7 +4,7 @@ import raven
 from config.includes import _20_credentials as c
 from django.conf import settings as s
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "https://spotified.403.io/"
 
 DEBUG = False
 ALLOWED_HOSTS = ["spotified.403.io"]

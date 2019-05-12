@@ -86,7 +86,7 @@
       become: true
       become_user: "{{ app_user }}"
       replace:
-        path: "{{ app_dir/config/settings.py/ }}"
+        path: "{{ app_dir }}/config/settings.py"
         regexp: '^DEBUG = True$'
         replace: "DEBUG = False"
 
