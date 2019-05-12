@@ -1,0 +1,15 @@
+[reverse-proxy]
+spotified-appdb-1.403.io
+
+[reverse-proxy:vars]
+letsencrypt_email=boerni@gmail.com
+domain_name=spotified.403.io
+
+[app]
+spotified-appdb-1.403.io
+
+[appdb]
+spotified-appdb-1.403.io
+
+[appdb:vars]
+db_name=spotified

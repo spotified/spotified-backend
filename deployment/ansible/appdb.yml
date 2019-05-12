@@ -1,0 +1,21 @@
+---
+- hosts: [app]
+  remote_user: root
+
+  tasks:
+    - name: Install postgresql-10 and python3-psycopg2
+      apt:
+        name: ['postgresql-10', 'python3-psycopg2']
+
+    - name: Make sure a postgres is running
+      systemd:
+        enabled: true
+        state: started
+        name: postgresql
+
+    - name: Create postgres database
+      become: true
+      become_user: postgres
+      postgresql_db:
+        name: "{{ db_name }}"
+        state: present

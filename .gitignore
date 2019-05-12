@@ -7,3 +7,4 @@
 /media/static/
 /config/includes/_20_credentials.py
 /.project
+/deployment/ansible/*.retry

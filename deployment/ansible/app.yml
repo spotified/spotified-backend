@@ -1,0 +1,95 @@
+---
+- hosts: [app]
+  remote_user: root
+
+  vars:
+    - project_name: "spotified"
+    - app_user: "spotified"
+    - app_home: "/opt/{{ project_name }}"
+    - app_dir: "{{ app_home }}/appserver"
+    - app_wsgi: "{{ app_dir }}/config/wsgi.py"
+    - venv_dir: "{{ app_home }}/venv"
+    - venv_python: "{{ app_home }}/venv/bin/python"
+    - manage_py: "{{venv_python }} {{app_dir}}/manage.py"
+    - gunicorn_service_name: "gunicorn.{{ project_name }}"
+    - gunicorn_service_file: "/etc/systemd/system/.service"
+
+  tasks:
+    - name: Install virtualenv
+      apt: name=virtualenv state=latest
+
+    - name: Project user is present
+      user:
+        name: "{{ app_user }}"
+
+    - name: Make sure a Gunicorn service is stopped
+      stat:
+        path: "{{ gunicorn_service_file }}"
+      register: p
+    - systemd:
+        state: stopped
+        name: "{{ gunicorn_service_name }}"
+      when: p.stat.exists
+
+    - git:
+        repo: 'https://github.com/spotified/spotified-backend.git'
+        dest: "{{ app_dir }}"
+        force: true
+        version: master
+
+    - pip:
+        requirements: "{{ app_dir }}/config/requirements.txt"
+        virtualenv: "{{ venv_dir }}"
+        virtualenv_python: "python3"
+
+    - file:
+        path: "{{ venv_dir }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        recurse: true
+
+    - name: Check environment.py file exists
+      stat:
+        path: "{{ app_dir }}/config/environment.py"
+      register: p
+    - template:
+        src: templates/environment.py.j2
+        dest: "{{ app_dir }}/config/environment.py"
+      when: p.stat.exists == False
+
+    - name: Check _20_credentials.py file exists
+      stat:
+        path: "{{ app_dir }}/config/includes/_20_credentials.py"
+      register: p
+    - template:
+        src: templates/_20_credentials.py.j2
+        dest: "{{ app_dir }}/config/includes/_20_credentials.py"
+      when: p.stat.exists == False
+
+    - file:
+        path: "{{ app_dir }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        recurse: true
+
+    - name: Run Migrations
+      become: true
+      become_user: "{{ app_user }}"
+      command: "{{ manage_py }} migrate"
+
+    - name: Clean pyc
+      become: true
+      become_user: "{{ app_user }}"
+      command: "{{ manage_py }} clean_pyc"
+
+    - name: Gunicorn .service file is in place
+      template:
+        src: templates/gunicorn.service.j2
+        dest: "{{ gunicorn_service_file }}"
+
+    - name: Make sure a Gunicorn service is running
+      systemd:
+        enabled: true
+        state: started
+        name: "{{ gunicorn_service_name }}"
+

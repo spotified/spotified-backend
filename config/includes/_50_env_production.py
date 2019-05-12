@@ -29,7 +29,7 @@ sentry_exceptions_to_ignore = (
 )
 
 RAVEN_CONFIG = {
-    "dsn": c.RAVEN_DSN,
+    # "dsn": c.RAVEN_DSN,
     # If you are using git, you can also automatically configure the
     # release based on the git info.
     "release": raven.fetch_git_sha(s.BASE_DIR),
