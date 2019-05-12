@@ -12,6 +12,9 @@ ExecStart={{ venv_dir }}/bin/gunicorn \
           -p {{ app_home }}/gunicorn.pid \
           -w {{ ansible_processor_vcpus + 1 }} \
           {{ app_wsgi }}
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target

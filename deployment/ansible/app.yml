@@ -7,12 +7,12 @@
     - app_user: "spotified"
     - app_home: "/opt/{{ project_name }}"
     - app_dir: "{{ app_home }}/appserver"
-    - app_wsgi: "{{ app_dir }}/config/wsgi.py"
+    - app_wsgi: "config.wsgi"
     - venv_dir: "{{ app_home }}/venv"
     - venv_python: "{{ app_home }}/venv/bin/python"
     - manage_py: "{{venv_python }} {{app_dir}}/manage.py"
     - gunicorn_service_name: "gunicorn.{{ project_name }}"
-    - gunicorn_service_file: "/etc/systemd/system/.service"
+    - gunicorn_service_file: "/etc/systemd/system/{{ gunicorn_service_name }}.service"
 
   tasks:
     - name: Install virtualenv
@@ -82,6 +82,14 @@
       become_user: "{{ app_user }}"
       command: "{{ manage_py }} clean_pyc"
 
+    - name: Ansible replace string example
+      become: true
+      become_user: "{{ app_user }}"
+      replace:
+        path: "{{ app_dir/config/settings.py/ }}"
+        regexp: '^DEBUG = True$'
+        replace: "DEBUG = False"
+
     - name: Gunicorn .service file is in place
       template:
         src: templates/gunicorn.service.j2
@@ -89,6 +97,7 @@
 
     - name: Make sure a Gunicorn service is running
       systemd:
+        daemon_reload: true
         enabled: true
         state: started
         name: "{{ gunicorn_service_name }}"

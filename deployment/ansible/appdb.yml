@@ -19,3 +19,12 @@
       postgresql_db:
         name: "{{ db_name }}"
         state: present
+
+    - name: Create postgres database
+      become: true
+      become_user: postgres
+      postgresql_user:
+        db: postgres
+        name: postgres
+        password: "{{ postgres_password }}"
+        expires: infinity

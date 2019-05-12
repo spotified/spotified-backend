@@ -6,7 +6,8 @@ from django.conf import settings as s
 
 BASE_URL = "http://127.0.0.1:8000"
 
-DEBUG = True
+DEBUG = False
+ALLOWED_HOSTS = ["spotified.403.io"]
 
 DATABASES = {
     "default": {
@@ -16,6 +17,7 @@ DATABASES = {
         "PASSWORD": c.DB_PASSWORD,
         "HOST": c.DB_HOST,
         "PORT": c.DB_PORT,
+        "CONN_MAX_AGE": 120,
     }
 }
 
