@@ -1,6 +1,7 @@
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
 
-from .models import Artist, Playlist, Track
+from .models import Artist, Playlist, PlaylistTrackVote, Track
 
 
 class ArtistSerializer(serializers.ModelSerializer):
@@ -14,7 +15,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 
 
 class TrackSerializer(serializers.ModelSerializer):
-    artists = ArtistSerializer(many=True)
+    artists = ArtistSerializer(many=True, read_only=True)
 
     class Meta:
         model = Track
@@ -22,14 +23,24 @@ class TrackSerializer(serializers.ModelSerializer):
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
-    tracks = TrackSerializer(many=True)
+    tracks = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Playlist
         fields = ("pk", "name", "owner", "tracks")
+
+    def get_tracks(self, instance):
+        tracks = instance.tracks_score_ordered
+        return TrackSerializer(tracks, many=True).data
 
 
 class PlaylistOverviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
         fields = ("pk", "name", "owner")
+
+
+class PlaylistTrackVoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlaylistTrackVote
+        fields = ("pk", "voter", "playlist_track", "vote")

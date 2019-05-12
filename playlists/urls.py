@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from . import views
 
@@ -11,5 +11,10 @@ urlpatterns = [
         "<int:playlist_id>/tracks/",
         views.PlaylistTrackView.as_view(),
         name="playlist_track",
+    ),
+    re_path(
+        r"(?P<playlist_id>\d+)/tracks/(?P<track_id>\d+)/vote/(?P<up_or_down>(up|down))/",
+        views.PlaylistTrackVoteView.as_view(),
+        name="playlist_track_vote",
     ),
 ]
