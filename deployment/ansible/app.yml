@@ -12,12 +12,43 @@
       apt:
         name: ['virtualenv', 'python3-pip']
 
-    - name: Project user is present
+    - name: App user is present
       user:
         name: "{{ app_user }}"
 
-    - name: pip3 install poetry
-      command: pip3 install poetry
+    - name: Creates App home dir
+      file:
+        path: "{{ app_home }}"
+        state: directory
+
+    - name: Chown App dir
+      file:
+        path: "{{ app_home }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+
+    - name: git checkout
+      become: true
+      become_user: "{{ app_user }}"
+      git:
+        repo: 'https://github.com/spotified/spotified-backend.git'
+        dest: "{{ app_dir }}"
+        force: true
+        version: master
+
+    - name: Create Virtual Env
+      become: true
+      become_user: "{{ app_user }}"
+      pip:
+        name: poetry
+        virtualenv: "{{ venv_dir }}"
+
+    - name: Install python deps
+      become: true
+      become_user: "{{ app_user }}"
+      shell: "source {{ venv_dir }}/bin/activate && cd {{ app_dir }} && poetry install"
+      args:
+        executable: /bin/bash
 
     - name: Make sure a Gunicorn service is stopped
       stat:
@@ -28,24 +59,14 @@
         name: "{{ gunicorn_service_name }}"
       when: p.stat.exists
 
-    - git:
-        repo: 'https://github.com/spotified/spotified-backend.git'
-        dest: "{{ app_dir }}"
-        force: true
-        version: master
-
     - name: Run Migrations
       become: true
       become_user: "{{ app_user }}"
       command: "{{ manage_py }} migrate"
 
-    - file:
-        path: "{{ venv_dir }}"
-        owner: "{{ app_user }}"
-        group: "{{ app_user }}"
-        recurse: true
-
     - name: Check environment.py file exists
+      become: true
+      become_user: "{{ app_user }}"
       stat:
         path: "{{ app_dir }}/config/environment.py"
       register: p
@@ -55,6 +76,8 @@
       when: p.stat.exists == False
 
     - name: Check _20_credentials.py file exists
+      become: true
+      become_user: "{{ app_user }}"
       stat:
         path: "{{ app_dir }}/config/includes/_20_credentials.py"
       register: p
@@ -62,12 +85,6 @@
         src: templates/_20_credentials.py.j2
         dest: "{{ app_dir }}/config/includes/_20_credentials.py"
       when: p.stat.exists == False
-
-    - file:
-        path: "{{ app_home }}"
-        owner: "{{ app_user }}"
-        group: "{{ app_user }}"
-        recurse: true
 
     - name: Run Migrations
       become: true
