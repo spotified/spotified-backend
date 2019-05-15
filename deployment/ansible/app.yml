@@ -8,12 +8,16 @@
     - gunicorn_service_file: "/etc/systemd/system/{{ gunicorn_service_name }}.service"
 
   tasks:
-    - name: Install virtualenv
-      apt: name=virtualenv state=latest
+    - name: Install virtualenv and pip
+      apt:
+        name: ['virtualenv', 'python3-pip']
 
     - name: Project user is present
       user:
         name: "{{ app_user }}"
+
+    - name: pip3 install poetry
+      command: pip3 install poetry
 
     - name: Make sure a Gunicorn service is stopped
       stat:
@@ -30,10 +34,10 @@
         force: true
         version: master
 
-    - pip:
-        requirements: "{{ app_dir }}/config/requirements.txt"
-        virtualenv: "{{ venv_dir }}"
-        virtualenv_python: "python3"
+    - name: Run Migrations
+      become: true
+      become_user: "{{ app_user }}"
+      command: "{{ manage_py }} migrate"
 
     - file:
         path: "{{ venv_dir }}"

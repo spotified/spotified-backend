@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "spotified"
+version = "0.0.1"
+description = ""
+authors = ["Bernhard Janetzki <boerni@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.6"
+django = "^2.2"
+django_js_reverse = "^0.9.1"
+djangorestframework = "^3.9"
+django_extensions = "^2.1"
+raven = "^6.10"
+psycopg2-binary = "^2.8"
+spotipy = "^2.4"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
