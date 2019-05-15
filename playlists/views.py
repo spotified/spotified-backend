@@ -1,6 +1,6 @@
 from django.db import transaction
+from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 from spotipy import SpotifyException
 from utils.spotify import spotify_uri_or_link_to_id
 
+from . import models as m
 from . import serializers as se
-from .models import Artist, Playlist, PlaylistTrack, PlaylistTrackVote, Track
 
 
 class PlaylistView(APIView):
@@ -18,11 +18,11 @@ class PlaylistView(APIView):
 
     def get(self, request, playlist_id=None):
         if playlist_id:
-            playlist_obj = get_object_or_404(Playlist, pk=playlist_id)
+            playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
             playlist = se.PlaylistSerializer(instance=playlist_obj)
             return Response(playlist.data)
         else:
-            playlist_qs = Playlist.objects.all()
+            playlist_qs = m.Playlist.objects.all()
             playlists = se.PlaylistOverviewSerializer(playlist_qs, many=True)
             return Response(playlists.data)
 
@@ -45,20 +45,20 @@ class PlaylistView(APIView):
                 spotify_snapshot_id=create_response["snapshot_id"],
             )
 
-            return Response(playlist.data, status=status.HTTP_201_CREATED)
+            return Response(playlist.data)
 
 
 class PlaylistTrackView(APIView):
     @transaction.atomic()
     def post(self, request, playlist_id):
-        playlist_obj = get_object_or_404(Playlist, pk=playlist_id)
+        playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
         track_spotify_id = spotify_uri_or_link_to_id(
             request.data.get("spotify_id"), content_type="track"
         )
 
         try:
-            track_obj = Track.objects.get(spotify_id=track_spotify_id)
-        except Track.DoesNotExist:
+            track_obj = m.Track.objects.get(spotify_id=track_spotify_id)
+        except m.Track.DoesNotExist:
             # fetch track info
             try:
                 track_info = request.user.spotify_api.track(track_spotify_id)
@@ -76,9 +76,9 @@ class PlaylistTrackView(APIView):
             for track_info_artist in track_info_artists:
                 try:
                     artists.append(
-                        Artist.objects.get(spotify_id=track_info_artist["id"])
+                        m.Artist.objects.get(spotify_id=track_info_artist["id"])
                     )
-                except Artist.DoesNotExist:
+                except m.Artist.DoesNotExist:
                     artist = se.ArtistSerializer(
                         data={
                             "spotify_id": track_info_artist["id"],
@@ -99,7 +99,7 @@ class PlaylistTrackView(APIView):
             track_obj = track.instance
 
         # save playlist <-> track relation
-        playlist_track_obj, created = PlaylistTrack.objects.get_or_create(
+        playlist_track_obj, created = m.PlaylistTrack.objects.get_or_create(
             playlist=playlist_obj, track=track_obj, added_by=request.user
         )
 
@@ -113,24 +113,24 @@ class PlaylistTrackView(APIView):
 
 class PlaylistTrackVoteView(APIView):
     def post(self, request, playlist_id, track_id, up_or_down):
-        playlist_obj = get_object_or_404(Playlist, pk=playlist_id)
-        track_obj = get_object_or_404(Track, pk=track_id)
-        playlist_track_obj = PlaylistTrack.objects.get(
+        playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
+        track_obj = get_object_or_404(m.Track, pk=track_id)
+        playlist_track_obj = m.PlaylistTrack.objects.get(
             playlist=playlist_obj, track=track_obj
         )
 
         if up_or_down == "up":
-            up_or_down = PlaylistTrackVote.VOTE_UP
+            up_or_down = m.PlaylistTrackVote.VOTE_UP
         else:
-            up_or_down = PlaylistTrackVote.VOTE_DOWN
+            up_or_down = m.PlaylistTrackVote.VOTE_DOWN
 
         try:
-            playlist_track_vote_obj = PlaylistTrackVote.objects.get(
+            playlist_track_vote_obj = m.PlaylistTrackVote.objects.get(
                 voter=request.user, playlist_track=playlist_track_obj
             )
             playlist_track_vote_obj.vote = up_or_down
             playlist_track_vote_obj.save()
-        except PlaylistTrackVote.DoesNotExist:
+        except m.PlaylistTrackVote.DoesNotExist:
             playlist_track_vote = se.PlaylistTrackVoteSerializer(
                 data={
                     "voter": request.user.pk,
@@ -144,5 +144,36 @@ class PlaylistTrackVoteView(APIView):
 
         # recalculate the score
         playlist_track_obj.save()
+
+        return Response({})
+
+
+class PlaylistTagsView(APIView):
+    @transaction.atomic()
+    def post(self, request, playlist_id):
+        playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
+
+        tag = se.PlaylistTagSerializer(data=request.data)
+
+        if tag.is_valid(raise_exception=True):
+            tag.save()
+
+            if not playlist_obj.tags.filter(pk=tag.instance.pk).count():
+                tag.instance.count = F("count") + 1
+                tag.instance.save()
+                playlist_obj.tags.add(tag.instance)
+
+        return Response(tag.data)
+
+    @transaction.atomic()
+    def delete(self, request, playlist_id, tag_id):
+        playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
+        tag_obj = get_object_or_404(
+            m.PlaylistTag.objects.select_for_update(), pk=tag_id
+        )
+
+        playlist_obj.tags.filter(pk=tag_obj.pk).delete()
+        tag_obj.count = tag_obj.count - 1
+        tag_obj.save()
 
         return Response({})

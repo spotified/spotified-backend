@@ -4,9 +4,6 @@
 
   vars:
     - app_wsgi: "config.wsgi"
-    - venv_dir: "{{ app_home }}/venv"
-    - venv_python: "{{ app_home }}/venv/bin/python"
-    - manage_py: "{{venv_python }} {{app_dir}}/manage.py"
     - gunicorn_service_name: "gunicorn.{{ project_name }}"
     - gunicorn_service_file: "/etc/systemd/system/{{ gunicorn_service_name }}.service"
 
@@ -98,3 +95,17 @@
         state: started
         name: "{{ gunicorn_service_name }}"
 
+    - name: add startup to root/.profile
+      blockinfile:
+        dest: /root/.profile
+        block: |
+          sudo su - {{ app_user }} -s /bin/bash;
+
+    - name: add startup to app user /.profile
+      become: true
+      become_user: "{{ app_user }}"
+      blockinfile:
+        dest: /home/{{ app_user }}/.profile
+        block: |
+          source {{ venv_dir }}/bin/activate;
+          cd {{ app_dir }};

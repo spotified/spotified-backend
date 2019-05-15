@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from .models import Artist, Playlist, PlaylistTrackVote, Track
+from .models import Artist, Playlist, PlaylistTag, PlaylistTrackVote, Track
 
 
 class ArtistSerializer(serializers.ModelSerializer):
@@ -47,3 +47,17 @@ class PlaylistTrackVoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlaylistTrackVote
         fields = ("pk", "voter", "playlist_track", "vote")
+
+
+class PlaylistTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlaylistTag
+        fields = ("pk", "name")
+
+    def create(self, validated_data):
+        instance, _ = PlaylistTag.objects.get_or_create(**validated_data)
+        return instance
+
+    def validate_name(self, value):
+        if value:
+            return value.lower()

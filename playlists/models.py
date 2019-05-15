@@ -8,7 +8,6 @@ from django.utils.timezone import get_default_timezone_name, now
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
-from tagulous.models import TagField
 
 
 class Artist(models.Model):
@@ -26,6 +25,16 @@ class Track(models.Model):
     artists = models.ManyToManyField(Artist, blank=True)
 
 
+class PlaylistTag(models.Model):
+    name = models.CharField(max_length=50, blank=False, unique=True)
+    count = models.IntegerField(
+        default=0, help_text="Internal counter of how many times this tag is in use"
+    )
+
+    class Meta:
+        ordering = ("name",)
+
+
 class Playlist(TimeStampedModel):
     spotify_id = models.CharField(
         _("SpotifyID"), max_length=255, blank=False, null=False, unique=True
@@ -40,7 +49,7 @@ class Playlist(TimeStampedModel):
         _("Name"), max_length=255, blank=False, null=False, unique=True
     )
     tracks = models.ManyToManyField(Track, through="PlaylistTrack")
-    tags = TagField(force_lowercase=True)
+    tags = models.ManyToManyField(PlaylistTag, blank=True)
 
     @property
     def tracks_score_ordered(self):
