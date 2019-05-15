@@ -2,26 +2,33 @@
 - hosts: all
   remote_user: root
   tasks:
-    - name: Update APT package cache
-      apt: update_cache=yes cache_valid_time=3600
-
     - name: Upgrade APT to the latest packages
       apt: upgrade=safe
 
     - name: Install ntpdate
       apt:
         name: ntpdate
+        update_cache: yes
+        autoremove: yes
+        autoclean: yes
+        cache_valid_time: 3600
 
     - name: set timezone to Europe/Berlin
       timezone:
         name: Europe/Berlin
 
-  roles:
-    - role: dev-sec.ssh-hardening
-      ssh_server_password_login: false
-      ssh_permit_root_login: 'without-password'
-      sftp_enabled: true
+    - name: PasswordAuthentication no
+      replace:
+        path: "/etc/ssh/sshd_config"
+        regexp: '^#?PasswordAuthentication .*$'
+        replace: "PasswordAuthentication no"
 
+    - name: Reload sshd
+      systemd:
+        state: reloaded
+        name: ssh
+
+  roles:
     - role: jnv.unattended-upgrades
       unattended_origins_patterns:
         - 'origin=Ubuntu,archive=${distro_codename}-security'

@@ -67,7 +67,7 @@
       when: p.stat.exists == False
 
     - file:
-        path: "{{ app_dir }}"
+        path: "{{ app_home }}"
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
         recurse: true
@@ -82,7 +82,7 @@
       become_user: "{{ app_user }}"
       command: "{{ manage_py }} clean_pyc"
 
-    - name: Ansible replace string example
+    - name: Set DBUG = False
       become: true
       become_user: "{{ app_user }}"
       replace:

@@ -44,6 +44,9 @@ class PlaylistTrack(models.Model):
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
 
     score = models.DecimalField(_("Points"), decimal_places=7, max_digits=12)
+    added_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False
+    )
     date_added = CreationDateTimeField(_("added"))
 
     class Meta:

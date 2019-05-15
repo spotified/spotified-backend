@@ -3,12 +3,14 @@ Description=gunicorn daemon for {{ project_name }}.%I
 After=network.target
 
 [Service]
-    PIDFile={{ app_home }}/gunicorn.pid
+PIDFile={{ app_home }}/gunicorn.pid
 User={{ app_user }}
 Group={{ app_user }}
+Restart=always
+RestartSec=5
 WorkingDirectory={{ app_dir }}
 ExecStart={{ venv_dir }}/bin/gunicorn \
-          -b unix://{{ app_home }}/gunicorn.sock \
+          -b {{ hostvars['app-1.spotified.403.io'].lan_ip }}:8000 \
           -p {{ app_home }}/gunicorn.pid \
           -w {{ ansible_processor_vcpus + 1 }} \
           {{ app_wsgi }}

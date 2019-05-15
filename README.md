@@ -8,7 +8,7 @@ http GET https://spotified.403.io/api/v1/auth/start/
 http POST https://spotified.403.io/api/v1/auth/finish/ code=AQBgVo9ldZHlUVCP-iAZhuj-4cEcVGzyEW8UUNrfAbQr5iWRraV7wcAJUgXgJrhGPUXQ4iZj0F-bkWAD46fyWzTt65Rm-6ZXnQuPgwrw6hsRjw4ReCkG8wKwbz0YqLmP917XJYxkBGXGcpPE7wlMIz1Q3R5fJpvmIYinUpJ5ne1CdJI5Isj7LJMxQBnYbthf6ZC-6c6kZ2cJy-pvHAayiXYM6idT
 
 # Create a playlist
-http POST https://spotified.403.io/api/v1/playlists/ 'Authorization:Token 1368c2a192d699b1a0e6a9dad75e926326d288ad' name='aaaaaaa'
+http POST https://spotified.403.io/api/v1/playlists/ 'Authorization:Token 24993d9a20433816c5bdaeb86a3f0c8b650b6c32' name='aaaaaaa'
 
 # Add a track to the playlist by URI 
 http POST https://spotified.403.io/api/v1/playlists/1/tracks/ 'Authorization:Token 1368c2a192d699b1a0e6a9dad75e926326d288ad' spotify_id=spotify:track:1csLNQUyuhEPFiP1Qvjk9b

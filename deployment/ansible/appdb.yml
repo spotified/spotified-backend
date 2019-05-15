@@ -1,5 +1,5 @@
 ---
-- hosts: [app]
+- hosts: [appdb]
   remote_user: root
 
   tasks:
@@ -7,10 +7,22 @@
       apt:
         name: ['postgresql-10', 'python3-psycopg2']
 
+    - name: add new configuration to postgresql.conf
+      blockinfile:
+        dest: /etc/postgresql/10/main/postgresql.conf
+        block: |
+          listen_addresses = '{{ lan_ip }}'
+
+    - name: add new configuration to pg_hba.conf
+      blockinfile:
+        dest: /etc/postgresql/10/main/pg_hba.conf
+        block: |
+          host    {{ db_name }}   postgres        {{ hostvars['app-1.spotified.403.io'].lan_ip }}/32                 md5
+
     - name: Make sure a postgres is running
       systemd:
         enabled: true
-        state: started
+        state: restarted
         name: postgresql
 
     - name: Create postgres database

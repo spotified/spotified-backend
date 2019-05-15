@@ -1,15 +1,20 @@
 [reverse-proxy]
-spotified-appdb-1.403.io
+reverse-proxy-1.spotified.403.io lan_ip=10.135.161.91
 
 [reverse-proxy:vars]
-letsencrypt_email=boerni@gmail.com
 domain_name=spotified.403.io
+letsencrypt_email=boerni@gmail.com
+ansible_python_interpreter=/usr/bin/python3
 
 [app]
-spotified-appdb-1.403.io
+app-1.spotified.403.io lan_ip=10.135.161.159
+
+[app:vars]
+ansible_python_interpreter=/usr/bin/python3
 
 [appdb]
-spotified-appdb-1.403.io
+appdb-1.spotified.403.io lan_ip=10.135.161.161
 
 [appdb:vars]
 db_name=spotified
+ansible_python_interpreter=/usr/bin/python3
