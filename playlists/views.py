@@ -27,11 +27,24 @@ class PlaylistView(APIView):
             return Response(playlists.data)
 
     def post(self, request):
-        request.data["owner"] = request.user.pk
-        playlist = se.PlaylistSerializer(data=request.data)
+        playlist = se.PlaylistSerializer(
+            data={**request.data, **{"owner": request.user.pk}}
+        )
 
         if playlist.is_valid(raise_exception=True):
-            playlist.save()
+            # create Playlist  Spotify
+            create_response = request.user.spotify_api.user_playlist_create(
+                request.user.spotify_id,
+                "{}".format(playlist.validated_data["name"]),
+                public=True,
+            )
+
+            # save the playlist
+            playlist.save(
+                spotify_id=create_response["id"],
+                spotify_snapshot_id=create_response["snapshot_id"],
+            )
+
             return Response(playlist.data, status=status.HTTP_201_CREATED)
 
 
@@ -87,7 +100,7 @@ class PlaylistTrackView(APIView):
 
         # save playlist <-> track relation
         playlist_track_obj, created = PlaylistTrack.objects.get_or_create(
-            playlist=playlist_obj, track=track_obj
+            playlist=playlist_obj, track=track_obj, added_by=request.user
         )
 
         if not created:

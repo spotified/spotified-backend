@@ -1,11 +1,16 @@
 ---
 - hosts: [reverse-proxy]
-  remote_user: root
+  remote_user: "{{ remote_user }}"
 
   pre_tasks:
     - raw: apt-get install -y python-simplejson
 
   tasks:
+    - debug: "{{ spotify_api_client_id }}"
+    - debug: "{{ spotify_api_client_secret }}"
+    - debug: "{{ app_secret_key }}"
+    - debug: "{{ app_db_password }}"
+
     - name: Upgrade system
       apt: upgrade=dist update_cache=yes
 
@@ -54,7 +59,7 @@
         creates: /etc/letsencrypt/live/{{ domain_name }}
 
     - name: Generate dhparams
-      shell: openssl dhparam -out /etc/nginx/dhparams.pem 2048
+      shell: openssl dhparam -out /etc/nginx/dhparams.pem 4098
       args:
         creates: /etc/nginx/dhparams.pem
 

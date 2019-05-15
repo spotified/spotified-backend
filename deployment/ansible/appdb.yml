@@ -1,6 +1,6 @@
 ---
 - hosts: [appdb]
-  remote_user: root
+  remote_user: "{{ remote_user }}"
 
   tasks:
     - name: Install postgresql-10 and python3-psycopg2
@@ -29,7 +29,7 @@
       become: true
       become_user: postgres
       postgresql_db:
-        name: "{{ db_name }}"
+        name: "{{ app_db_name }}"
         state: present
 
     - name: Create postgres database
@@ -38,5 +38,5 @@
       postgresql_user:
         db: postgres
         name: postgres
-        password: "{{ postgres_password }}"
+        password: "{{ app_db_password }}"
         expires: infinity

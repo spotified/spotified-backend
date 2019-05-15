@@ -1,12 +1,8 @@
 ---
 - hosts: [app]
-  remote_user: root
+  remote_user: "{{ remote_user }}"
 
   vars:
-    - project_name: "spotified"
-    - app_user: "spotified"
-    - app_home: "/opt/{{ project_name }}"
-    - app_dir: "{{ app_home }}/appserver"
     - app_wsgi: "config.wsgi"
     - venv_dir: "{{ app_home }}/venv"
     - venv_python: "{{ app_home }}/venv/bin/python"

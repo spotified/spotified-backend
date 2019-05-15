@@ -1,0 +1,9 @@
+---
+project_name: "spotified"
+domain_name: "spotified.403.io"
+letsencrypt_email: "boerni@gmail.com"
+app_home: "/opt/{{ project_name }}"
+app_dir: "{{ app_home }}/appserver"
+app_user: "spotified"
+app_db_name: "spotified"
+static_dir: "{{ app_home }}/var/static"

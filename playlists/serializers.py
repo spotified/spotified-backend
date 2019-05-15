@@ -30,8 +30,11 @@ class PlaylistSerializer(serializers.ModelSerializer):
         fields = ("pk", "name", "owner", "tracks")
 
     def get_tracks(self, instance):
-        tracks = instance.tracks_score_ordered
-        return TrackSerializer(tracks, many=True).data
+        if isinstance(instance, Playlist):
+            tracks = instance.tracks_score_ordered
+            return TrackSerializer(tracks, many=True).data
+        else:
+            return None
 
 
 class PlaylistOverviewSerializer(serializers.ModelSerializer):

@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     "raven.contrib.django.raven_compat",
     "rest_framework",
     "rest_framework.authtoken",
+    "django_js_reverse",
+    "tagulous",
 ]
 
 MIDDLEWARE = [
@@ -120,8 +122,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = "/static/"
-
 # Import global settings, skip _50_env_* modules
 CONF_DIR = os.path.join(BASE_DIR, "config", "includes") + os.sep
 
@@ -171,3 +171,8 @@ with open("{}_50_env_{}.py".format(CONF_DIR, environment.NAME), "r") as fh:
 for configuration in order_based_settings(lambda order: order > 50):
     with open(CONF_DIR + configuration, "r") as fh:
         exec(fh.read(), globals(), locals())
+
+STATIC_URL = "/static/"
+MEDIA_URL = "/assets/"
+MEDIA_ROOT = os.path.join(VAR_DIR, "assets") + os.sep  # noqa
+STATIC_ROOT = os.path.join(VAR_DIR, "static") + os.sep  # noqa

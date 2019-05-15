@@ -12,6 +12,9 @@ djangorestframework = "*"
 django-extensions = "*"
 psycopg2-binary = "*"
 spotipy = "*"
+django-js-reverse = "*"
+django-tagulous = "*"
+unidecode = "*"
 
 [requires]
 python_version = "3.7"
