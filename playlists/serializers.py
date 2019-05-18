@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
@@ -22,31 +23,10 @@ class TrackSerializer(serializers.ModelSerializer):
         fields = ("spotify_id", "name", "artists")
 
 
-class PlaylistSerializer(serializers.ModelSerializer):
-    tracks = SerializerMethodField(read_only=True)
-
+class SpotifyUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Playlist
-        fields = ("pk", "name", "owner", "tracks")
-
-    def get_tracks(self, instance):
-        if isinstance(instance, Playlist):
-            tracks = instance.tracks_score_ordered
-            return TrackSerializer(tracks, many=True).data
-        else:
-            return None
-
-
-class PlaylistOverviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Playlist
-        fields = ("pk", "name", "owner")
-
-
-class PlaylistTrackVoteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PlaylistTrackVote
-        fields = ("pk", "voter", "playlist_track", "vote")
+        model = get_user_model()
+        fields = ("pk", "display_name", "image")
 
 
 class PlaylistTagSerializer(serializers.ModelSerializer):
@@ -61,3 +41,32 @@ class PlaylistTagSerializer(serializers.ModelSerializer):
     def validate_name(self, value):
         if value:
             return value.lower()
+
+
+class PlaylistWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Playlist
+        fields = ("pk", "name", "owner")
+
+
+class PlaylistReadSerializer(serializers.ModelSerializer):
+    owner = SpotifyUserSerializer(read_only=True)
+    tags = PlaylistTagSerializer(many=True)
+    tracks = SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Playlist
+        fields = ("pk", "name", "owner", "tracks", "tags")
+
+    def get_tracks(self, instance):
+        if isinstance(instance, Playlist):
+            tracks = instance.tracks_score_ordered
+            return TrackSerializer(tracks, many=True).data
+        else:
+            return None
+
+
+class PlaylistTrackVoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlaylistTrackVote
+        fields = ("pk", "voter", "playlist_track", "vote")

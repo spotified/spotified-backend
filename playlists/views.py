@@ -19,15 +19,15 @@ class PlaylistView(APIView):
     def get(self, request, playlist_id=None):
         if playlist_id:
             playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
-            playlist = se.PlaylistSerializer(instance=playlist_obj)
+            playlist = se.PlaylistReadSerializer(instance=playlist_obj)
             return Response(playlist.data)
         else:
             playlist_qs = m.Playlist.objects.all()
-            playlists = se.PlaylistOverviewSerializer(playlist_qs, many=True)
+            playlists = se.PlaylistReadSerializer(playlist_qs, many=True)
             return Response(playlists.data)
 
     def post(self, request):
-        playlist = se.PlaylistSerializer(
+        playlist = se.PlaylistWriteSerializer(
             data={**request.data, **{"owner": request.user.pk}}
         )
 
