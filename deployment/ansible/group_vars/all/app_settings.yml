@@ -10,3 +10,4 @@ venv_dir: "{{ app_home }}/venv"
 venv_python: "{{ app_home }}/venv/bin/python"
 manage_py: "{{venv_python }} {{app_dir}}/manage.py"
 static_dir: "{{ app_home }}/var/static"
+gunicorn_port: 8000

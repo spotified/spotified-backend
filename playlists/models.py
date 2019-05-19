@@ -48,6 +48,7 @@ class Playlist(TimeStampedModel):
     name = models.CharField(
         _("Name"), max_length=255, blank=False, null=False, unique=True
     )
+
     tracks = models.ManyToManyField(Track, through="PlaylistTrack")
     tags = models.ManyToManyField(PlaylistTag, blank=True)
 

@@ -10,7 +10,7 @@ Restart=always
 RestartSec=5
 WorkingDirectory={{ app_dir }}
 ExecStart={{ venv_dir }}/bin/gunicorn \
-          -b {{ hostvars['app-1.spotified.403.io'].lan_ip }}:8000 \
+          -b {{ hostvars['app-1.spotified.403.io'].lan_ip }}:{{ gunicorn_port }} \
           -p {{ app_home }}/gunicorn.pid \
           -w {{ ansible_processor_vcpus + 1 }} \
           {{ app_wsgi }}

@@ -6,11 +6,6 @@
     - raw: apt-get install -y python-simplejson
 
   tasks:
-    - debug: "{{ spotify_api_client_id }}"
-    - debug: "{{ spotify_api_client_secret }}"
-    - debug: "{{ app_secret_key }}"
-    - debug: "{{ app_db_password }}"
-
     - name: Upgrade system
       apt: upgrade=dist update_cache=yes
 

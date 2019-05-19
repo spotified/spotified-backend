@@ -35,7 +35,7 @@ server {
     index index.html index.htm;
 
     location /api/ {
-        proxy_pass http://{{ hostvars['app-1.spotified.403.io'].lan_ip }}:8000/api/;
+        proxy_pass http://{{ hostvars['app-1.spotified.403.io'].lan_ip }}:{{gunicorn_port}}/api/;
         proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
         proxy_redirect off;
         proxy_buffering off;

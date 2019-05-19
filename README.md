@@ -31,5 +31,8 @@ http GET https://spotified.403.io/api/v1/playlists/1/
 ## Add a Tag to Playlist
 http POST https://spotified.403.io/api/v1/playlists/1/tags/ name="heavymetal" 'Authorization:Token 1368c2a192d699b1a0e6a9dad75e926326d288ad'
 
+## Get Tag by "startswith" name
+http GET https://spotified.403.io/api/v1/playlists/tags/\?name\=ha 'Authorization:Token 1368c2a192d699b1a0e6a9dad75e926326d288ad'
+
 ## Remove a Tag from a Playlist
 http DELETE https://spotified.403.io/api/v1/playlists/1/tags/1/ 'Authorization:Token 1368c2a192d699b1a0e6a9dad75e926326d288ad' spotify_id=https://open.spotify.com/track/3Kbriu0vdmCxd6iGDGBENw\?si\=lqHwG7qeSIaMYYXTS9f0Pw 

@@ -177,3 +177,13 @@ class PlaylistTagsView(APIView):
         tag_obj.save()
 
         return Response({})
+
+
+class TagView(APIView):
+    def get(self, request):
+        name = self.request.query_params.get("name", "")
+        tag_objs = m.PlaylistTag.objects.filter(name__startswith=name).order_by(
+            "-count"
+        )[0:50]
+        tags = se.PlaylistTagSerializer(instance=tag_objs, many=True)
+        return Response(tags.data)

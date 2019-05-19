@@ -27,4 +27,5 @@ urlpatterns = [
         views.PlaylistTrackVoteView.as_view(),
         name="playlist_track_vote",
     ),
+    path("tags/", views.TagView.as_view(), name="playlists_tags"),
 ]
