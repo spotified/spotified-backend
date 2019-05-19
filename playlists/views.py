@@ -180,6 +180,8 @@ class PlaylistTagsView(APIView):
 
 
 class TagView(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
     def get(self, request):
         name = self.request.query_params.get("name", "")
         tag_objs = m.PlaylistTag.objects.filter(name__startswith=name).order_by(
