@@ -72,7 +72,7 @@ class SpotifyUser(AbstractBaseUser, TimeStampedModel):
     oauth = oauth2.SpotifyOAuth(
         s.SPOTIFY_API_CLIENT_ID,
         s.SPOTIFY_API_CLIENT_SECRET,
-        s.BASE_URL,
+        s.SPOTIFY_API_AUTH_REDIRECT_URL,
         scope=SPOTIFY_API_SCOPES,
     )
 

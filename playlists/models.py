@@ -56,6 +56,15 @@ class Playlist(TimeStampedModel):
     def tracks_score_ordered(self):
         return self.tracks.all().order_by("-playlisttrack__score")
 
+    def upload_to_spotify(self):
+        response = self.owner.spotify_api.user_playlist_replace_tracks(
+            self.owner.spotify_id,
+            self.spotify_id,
+            tracks=[track.spotify_id for track in self.tracks_score_ordered],
+        )
+        self.spotify_snapshot_id = response["snapshot_id"]
+        self.save()
+
 
 class PlaylistTrack(models.Model):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)

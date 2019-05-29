@@ -35,6 +35,27 @@ server {
     index index.html index.htm;
 
     location /api/ {
+        set $cors '';
+        if ($http_origin ~ '^https?://(localhost|spotified\.netlify\.com)') {
+            set $cors 'true';
+        }
+
+        if ($cors = 'true') {
+            add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+            add_header 'Access-Control-Allow-Headers' 'Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With' always;
+            add_header 'Access-Control-Expose-Headers' 'Authorization' always;
+        }
+
+        if ($request_method = 'OPTIONS') {
+            # Tell client that this pre-flight info is valid for 20 days
+            add_header 'Access-Control-Max-Age' 1728000;
+            add_header 'Content-Type' 'text/plain charset=UTF-8';
+            add_header 'Content-Length' 0;
+            return 204;
+        }
+
         proxy_pass http://{{ hostvars['app-1.spotified.403.io'].lan_ip }}:{{gunicorn_port}}/api/;
         proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
         proxy_redirect off;

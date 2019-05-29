@@ -1,6 +1,7 @@
 from config.includes import _20_credentials as c
 
 BASE_URL = "http://127.0.0.1:8000"
+SPOTIFY_API_AUTH_REDIRECT_URL = "http://127.0.0.1:8000/auth/finish/"
 
 DEBUG = True
 
