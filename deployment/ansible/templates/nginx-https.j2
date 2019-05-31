@@ -1,6 +1,18 @@
 add_header X-Content-Type-Options nosniff;
 add_header X-XSS-Protection "1; mode=block";
 
+map $http_origin $do_cors {
+
+  # indicates all map values are hostnames and should be parsed as such
+  hostnames;
+
+  # default value
+  default 'false';
+
+  # all your domains
+  localhost          'true';
+  spotified.netlify.com 'true';
+}
 
 # HTTPS server
 #
@@ -35,12 +47,7 @@ server {
     index index.html index.htm;
 
     location /api/ {
-        set $cors '';
-        if ($http_origin ~ '^https?://(localhost|spotified\.netlify\.com)') {
-            set $cors 'true';
-        }
-
-        if ($cors = 'true') {
+        if ($do_cors) {
             add_header 'Access-Control-Allow-Origin' "$http_origin" always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
             add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
