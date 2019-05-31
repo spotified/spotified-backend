@@ -5,7 +5,7 @@ from config.includes import _20_credentials as c
 from django.conf import settings as s
 
 BASE_URL = "https://spotified.403.io/"
-SPOTIFY_API_AUTH_REDIRECT_URL = "http://127.0.0.1:3000/auth/finish/"
+SPOTIFY_API_AUTH_REDIRECT_URL = "http://localhost:3000/auth/finish/"
 
 DEBUG = False
 ALLOWED_HOSTS = ["spotified.403.io"]
