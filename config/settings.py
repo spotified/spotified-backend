@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     "django_extensions",
     "raven.contrib.django.raven_compat",
     "rest_framework",
-    "rest_framework.authtoken",
     "django_js_reverse",
 ]
 

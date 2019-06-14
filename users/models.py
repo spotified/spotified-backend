@@ -56,7 +56,12 @@ class SpotifyUser(AbstractBaseUser, TimeStampedModel):
 
     # OAuth stuff
     access_token = models.CharField(
-        _("Access Token"), max_length=255, blank=False, null=True, editable=False
+        _("Access Token"),
+        max_length=255,
+        blank=False,
+        null=True,
+        editable=False,
+        unique=True,
     )
     access_token_expires_at = models.DateTimeField(
         _("Access Token Expires at"), blank=False, null=True, editable=False

@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 
-HEADER_FIELD_X_SPOTIFY_TOKEN_EXPIRES_AT = "X-SPOTIFY-TOKEN-EXPIRES-AT"
+HEADER_FIELD_X_SPOTIFY_TOKEN_EXPIRES_AT = "X-AUTH-TOKEN-EXPIRES-AT"
 
 
 class SpotifyTokenExpiresAtHeaderMixin(APIView):
