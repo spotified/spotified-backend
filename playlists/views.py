@@ -6,14 +6,14 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from spotipy import SpotifyException
-from users.mixins import SpotifyTokenExpiresAtHeaderMixin
+from users.mixins import AuthTokenExpiresAtHeaderMixin
 from utils.spotify import spotify_uri_or_link_to_id
 
 from . import models as m
 from . import serializers as se
 
 
-class PlaylistView(SpotifyTokenExpiresAtHeaderMixin):
+class PlaylistView(AuthTokenExpiresAtHeaderMixin):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, playlist_id=None):
@@ -48,7 +48,7 @@ class PlaylistView(SpotifyTokenExpiresAtHeaderMixin):
             return Response(playlist.data)
 
 
-class PlaylistTrackView(SpotifyTokenExpiresAtHeaderMixin):
+class PlaylistTrackView(AuthTokenExpiresAtHeaderMixin):
     @transaction.atomic()
     def post(self, request, playlist_id):
         playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
@@ -111,7 +111,7 @@ class PlaylistTrackView(SpotifyTokenExpiresAtHeaderMixin):
         return Response({})
 
 
-class PlaylistTrackVoteView(SpotifyTokenExpiresAtHeaderMixin):
+class PlaylistTrackVoteView(AuthTokenExpiresAtHeaderMixin):
     def post(self, request, playlist_id, track_id, up_or_down):
         playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
         track_obj = get_object_or_404(m.Track, pk=track_id)
@@ -148,7 +148,7 @@ class PlaylistTrackVoteView(SpotifyTokenExpiresAtHeaderMixin):
         return Response({})
 
 
-class PlaylistTagsView(SpotifyTokenExpiresAtHeaderMixin):
+class PlaylistTagsView(AuthTokenExpiresAtHeaderMixin):
     @transaction.atomic()
     def post(self, request, playlist_id):
         playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
@@ -179,7 +179,7 @@ class PlaylistTagsView(SpotifyTokenExpiresAtHeaderMixin):
         return Response({})
 
 
-class TagView(SpotifyTokenExpiresAtHeaderMixin):
+class TagView(AuthTokenExpiresAtHeaderMixin):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request):

@@ -9,8 +9,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from spotipy.oauth2 import SpotifyOauthError
 
-from .mixins import (HEADER_FIELD_X_SPOTIFY_TOKEN_EXPIRES_AT,
-                     SpotifyTokenExpiresAtHeaderMixin)
+from .mixins import (HEADER_FIELD_X_AUTH_TOKEN_EXPIRES_AT,
+                     AuthTokenExpiresAtHeaderMixin)
 
 SpotifyUser = get_user_model()
 
@@ -56,7 +56,7 @@ class OAuthFlowFinish(APIView):
         return Response({"auth_token": user.access_token})
 
 
-class SpotifyAuthTokenRefresh(SpotifyTokenExpiresAtHeaderMixin):
+class SpotifyAuthTokenRefresh(AuthTokenExpiresAtHeaderMixin):
     def post(self, request):
         request.user.request_fresh_access_token()
         response = Response(
@@ -66,6 +66,6 @@ class SpotifyAuthTokenRefresh(SpotifyTokenExpiresAtHeaderMixin):
             }
         )
         response[
-            HEADER_FIELD_X_SPOTIFY_TOKEN_EXPIRES_AT
+            HEADER_FIELD_X_AUTH_TOKEN_EXPIRES_AT
         ] = request.user.access_token_expires_at.astimezone()
         return response
