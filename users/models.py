@@ -1,9 +1,10 @@
-import time
+from datetime import datetime, timedelta
 
 import spotipy
 from django.conf import settings as s
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+from django.utils.timezone import make_aware, now
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from spotipy import oauth2
@@ -57,7 +58,7 @@ class SpotifyUser(AbstractBaseUser, TimeStampedModel):
     access_token = models.CharField(
         _("Access Token"), max_length=255, blank=False, null=True, editable=False
     )
-    access_token_expires_at = models.IntegerField(
+    access_token_expires_at = models.DateTimeField(
         _("Access Token Expires at"), blank=False, null=True, editable=False
     )
     refresh_token = models.CharField(
@@ -97,8 +98,7 @@ class SpotifyUser(AbstractBaseUser, TimeStampedModel):
 
     @property
     def is_token_expired(self):
-        now = int(time.time())
-        return self.access_token_expires_at < now + 5
+        return now() - timedelta(seconds=60) > self.access_token_expires_at
 
     @property
     def spotify_api(self):
@@ -111,7 +111,9 @@ class SpotifyUser(AbstractBaseUser, TimeStampedModel):
         if token_info:
             self.access_token = token_info["access_token"]
             self.refresh_token = token_info["refresh_token"]
-            self.access_token_expires_at = token_info["expires_at"]
+            self.access_token_expires_at = make_aware(
+                datetime.fromtimestamp(token_info["expires_at"])
+            )
             self.save()
             return True
         return False

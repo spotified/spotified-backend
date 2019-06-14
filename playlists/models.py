@@ -14,14 +14,12 @@ class Artist(models.Model):
     spotify_id = models.CharField(
         _("SpotifyID"), max_length=255, blank=False, null=False, unique=True
     )
-    name = models.CharField(_("Name"), max_length=255, blank=False, null=False)
 
 
 class Track(models.Model):
     spotify_id = models.CharField(
         _("SpotifyID"), max_length=255, blank=False, null=False, unique=True
     )
-    name = models.CharField(_("Name"), max_length=255, blank=False, null=False)
     artists = models.ManyToManyField(Artist, blank=True)
 
 

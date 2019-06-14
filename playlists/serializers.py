@@ -12,7 +12,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Artist
-        fields = ("spotify_id", "name")
+        fields = ("spotify_id",)
 
 
 class TrackSerializer(serializers.ModelSerializer):
@@ -20,7 +20,7 @@ class TrackSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Track
-        fields = ("spotify_id", "name", "artists")
+        fields = ("spotify_id", "artists")
 
 
 class SpotifyUserSerializer(serializers.ModelSerializer):

@@ -5,15 +5,15 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from spotipy import SpotifyException
+from users.mixins import SpotifyTokenExpiresAtHeaderMixin
 from utils.spotify import spotify_uri_or_link_to_id
 
 from . import models as m
 from . import serializers as se
 
 
-class PlaylistView(APIView):
+class PlaylistView(SpotifyTokenExpiresAtHeaderMixin):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, playlist_id=None):
@@ -48,7 +48,7 @@ class PlaylistView(APIView):
             return Response(playlist.data)
 
 
-class PlaylistTrackView(APIView):
+class PlaylistTrackView(SpotifyTokenExpiresAtHeaderMixin):
     @transaction.atomic()
     def post(self, request, playlist_id):
         playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
@@ -111,7 +111,7 @@ class PlaylistTrackView(APIView):
         return Response({})
 
 
-class PlaylistTrackVoteView(APIView):
+class PlaylistTrackVoteView(SpotifyTokenExpiresAtHeaderMixin):
     def post(self, request, playlist_id, track_id, up_or_down):
         playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
         track_obj = get_object_or_404(m.Track, pk=track_id)
@@ -148,7 +148,7 @@ class PlaylistTrackVoteView(APIView):
         return Response({})
 
 
-class PlaylistTagsView(APIView):
+class PlaylistTagsView(SpotifyTokenExpiresAtHeaderMixin):
     @transaction.atomic()
     def post(self, request, playlist_id):
         playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
@@ -179,7 +179,7 @@ class PlaylistTagsView(APIView):
         return Response({})
 
 
-class TagView(APIView):
+class TagView(SpotifyTokenExpiresAtHeaderMixin):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request):

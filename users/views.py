@@ -1,4 +1,7 @@
+from datetime import datetime
+
 import spotipy
+from django.utils.timezone import make_aware
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ValidationError
@@ -6,6 +9,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from spotipy.oauth2 import SpotifyOauthError
 
+from .mixins import (HEADER_FIELD_X_SPOTIFY_TOKEN_EXPIRES_AT,
+                     SpotifyTokenExpiresAtHeaderMixin)
 from .models import SpotifyUser
 
 
@@ -39,7 +44,9 @@ class OAuthFlowFinish(APIView):
 
             user.display_name = user_info.get("display_name")
             user.access_token = token_info["access_token"]
-            user.access_token_expires_at = token_info["expires_at"]
+            user.access_token_expires_at = make_aware(
+                datetime.fromtimestamp(token_info["expires_at"])
+            )
             user.refresh_token = token_info["refresh_token"]
             user.save()
         except SpotifyOauthError:
@@ -47,3 +54,13 @@ class OAuthFlowFinish(APIView):
 
         auth_token, created = Token.objects.get_or_create(user=user)
         return Response({"auth_token": auth_token.key})
+
+
+class SpotifyAuthTokenRefresh(SpotifyTokenExpiresAtHeaderMixin):
+    def post(self, request):
+        request.user.request_fresh_access_token()
+        response = Response({"token_expires_at": request.user.access_token_expires_at})
+        response[
+            HEADER_FIELD_X_SPOTIFY_TOKEN_EXPIRES_AT
+        ] = request.user.access_token_expires_at.astimezone()
+        return response
