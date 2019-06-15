@@ -112,7 +112,7 @@ class PlaylistTrack(models.Model):
 
             score = (left - right) / under
 
-        if submission_age.days < 172800:
+        if submission_age.seconds < 172800:
             score += exp(-1 * (submission_age.seconds / 36000)) / max(downs - ups, 1)
 
         return score
