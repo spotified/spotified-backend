@@ -26,7 +26,7 @@ class TrackSerializer(serializers.ModelSerializer):
 class SpotifyUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ("pk", "display_name", "image")
+        fields = ("spotify_id",)
 
 
 class PlaylistTagSerializer(serializers.ModelSerializer):

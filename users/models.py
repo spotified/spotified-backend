@@ -37,6 +37,10 @@ class SpotifyUserManager(BaseUserManager):
 
 
 class SpotifyUser(AbstractBaseUser, TimeStampedModel):
+    is_active = None
+    password = None
+    last_login = None
+
     spotify_id = models.CharField(
         _("SpotifyID"),
         max_length=255,
@@ -45,13 +49,6 @@ class SpotifyUser(AbstractBaseUser, TimeStampedModel):
         null=False,
         editable=False,
     )
-    display_name = models.CharField(
-        _("Display name"), blank=False, null=True, max_length=255, editable=False
-    )
-    image = models.URLField(
-        _("Image"), max_length=1024, blank=False, null=True, editable=False
-    )
-
     is_admin = models.BooleanField(default=False)
 
     # OAuth stuff

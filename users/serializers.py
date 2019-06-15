@@ -7,4 +7,4 @@ SpotifyUser = get_user_model()
 class SpotifyUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = SpotifyUser
-        fields = ("spotify_id", "display_name", "image", "created", "modified")
+        fields = ("spotify_id",)

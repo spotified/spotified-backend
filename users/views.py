@@ -39,11 +39,6 @@ class OAuthFlowFinish(APIView):
                 spotify_id=user_info["id"]
             )
 
-            images = user_info.get("images")
-            if images:
-                user.image = images[0]["url"]
-
-            user.display_name = user_info.get("display_name")
             user.access_token = token_info["access_token"]
             user.access_token_expires_at = make_aware(
                 datetime.fromtimestamp(token_info["expires_at"])

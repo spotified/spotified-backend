@@ -3,9 +3,9 @@
   remote_user: "{{ remote_user }}"
 
   tasks:
-    - name: Install postgresql-10 and python3-psycopg2
+    - name: Install postgresql-11 and python3-psycopg2
       apt:
-        name: ['postgresql-10', 'python3-psycopg2']
+        name: ['postgresql-11', 'python3-psycopg2']
 
     - name: add new configuration to postgresql.conf
       blockinfile:
