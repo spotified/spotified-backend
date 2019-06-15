@@ -1,10 +1,8 @@
-from datetime import datetime
-from math import log
+from math import exp, sqrt
 
-import pytz
 from django.conf import settings
 from django.db import models
-from django.utils.timezone import get_default_timezone_name, now
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
@@ -80,22 +78,14 @@ class PlaylistTrack(models.Model):
 
     def calculate_score(self):
         """
-        Based on:
-        https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
+        Based on: https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
+        extended by submission time gravity
         """
-
-        epoch = pytz.timezone(get_default_timezone_name()).localize(
-            datetime(1970, 1, 1)
-        )
-
-        def epoch_seconds(date):
-            td = date - epoch
-            return td.days * 86400 + td.seconds + (float(td.microseconds) / 1000000)
 
         if not self.pk:
             ups = 0
             downs = 0
-            date = now()
+            submission_date = now()
         else:
             ups = PlaylistTrackVote.objects.filter(
                 playlist_track=self, vote=PlaylistTrackVote.VOTE_UP
@@ -103,13 +93,29 @@ class PlaylistTrack(models.Model):
             downs = PlaylistTrackVote.objects.filter(
                 playlist_track=self, vote=PlaylistTrackVote.VOTE_DOWN
             ).count()
-            date = self.date_added
+            submission_date = self.date_added
 
-        s = ups - downs
-        order = log(max(abs(s), 1), 10)
-        sign = 1 if s > 0 else -1 if s < 0 else 0
-        seconds = epoch_seconds(date) - 1134028003
-        return round(sign * order + seconds / 45000, 7)
+        score = 0
+        submission_age = now() - submission_date
+
+        if ups + downs != 0:
+            n = ups + downs
+            if n == 0:
+                return 0
+
+            z = 1.281551565545
+            p = float(ups) / n
+
+            left = p + 1 / (2 * n) * z * z
+            right = z * sqrt(p * (1 - p) / n + z * z / (4 * n * n))
+            under = 1 + 1 / n * z * z
+
+            score = (left - right) / under
+
+        if submission_age.days < 172800:
+            score += exp(-1 * (submission_age.seconds / 36000)) / max(downs - ups, 1)
+
+        return score
 
     def save(self, *args, **kwargs):
         self.score = self.calculate_score()
