@@ -1,5 +1,5 @@
 ---
-- hosts: [reverse-proxy]
+- hosts: [reverse_proxy]
   remote_user: "{{ remote_user }}"
 
   pre_tasks:
