@@ -70,7 +70,7 @@ class UserTest(TransactionTestCase):
         self.assertEquals(u.access_token_expires_at, access_token_expires_at)
 
     @patch("spotipy.oauth2.SpotifyOAuth.refresh_access_token")
-    def test_oauth_token_refresh_authorized(self, mock_request_fresh_access_token):
+    def test_oauth_token_refresh(self, mock_request_fresh_access_token):
         access_token_expires_at = now().replace(microsecond=0).astimezone()
 
         mock_request_fresh_access_token.return_value = {

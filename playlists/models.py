@@ -13,6 +13,9 @@ class Track(models.Model):
         _("SpotifyID"), max_length=255, blank=False, null=False, unique=True
     )
 
+    def __str__(self):
+        return self.spotify_id
+
 
 class PlaylistTag(models.Model):
     name = models.CharField(max_length=50, blank=False, unique=True)
@@ -22,6 +25,9 @@ class PlaylistTag(models.Model):
 
     class Meta:
         ordering = ("name",)
+
+    def __str__(self):
+        return self.name
 
 
 class Playlist(TimeStampedModel):
@@ -40,6 +46,9 @@ class Playlist(TimeStampedModel):
 
     tracks = models.ManyToManyField(Track, through="PlaylistTrack")
     tags = models.ManyToManyField(PlaylistTag, blank=True)
+
+    def __str__(self):
+        return self.name
 
     @property
     def tracks_score_ordered(self):

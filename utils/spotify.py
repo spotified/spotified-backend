@@ -17,7 +17,7 @@ def spotify_uri_or_link_to_id(uri_link_or_id, content_type):
     elif uri_link_or_id.lower().startswith(
         "https://"
     ) or uri_link_or_id.lower().startswith("http://"):
-        # e.g. https://open.spotify.com/track/6BBFXxmgCpkt5wfSSdeirq?si=JGFW4tlvQYGJWVMP9aBdVQ => JGFW4tlvQYGJWVMP9aBdVQ
+        # e.g. https://open.spotify.com/track/6BBFXxmgCpkt5wfSSdeirq?si=JGFW4tlvQYGJWVMP9aBdVQ => 6BBFXxmgCpkt5wfSSdeirq
         url_pathes_parsed = urlparse(uri_link_or_id).path.split("/")
 
         try:

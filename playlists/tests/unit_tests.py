@@ -6,8 +6,9 @@ from django.test import TransactionTestCase, override_settings
 from django.urls import reverse
 from rest_framework.test import APIClient
 from users.authentication import TokenAuthentication
+from utils.spotify import spotify_uri_or_link_to_id
 
-from ..models import Playlist
+from ..models import Playlist, PlaylistTrack, Track
 
 TESTS_FIXTURES_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "fixtures"
@@ -21,6 +22,7 @@ class PlaylistTest(TransactionTestCase):
     fixtures = ["playlists.json"]
 
     def setUp(self):
+        # patch request_fresh_access_token
         patcher = patch(
             "users.models.SpotifyUser.request_fresh_access_token", return_value=True
         )
@@ -35,7 +37,7 @@ class PlaylistTest(TransactionTestCase):
         )
 
     @patch("spotipy.Spotify.user_playlist_create")
-    def test_playlist_post_authorized(self, mock_user_playlist_create):
+    def test_playlist_post(self, mock_user_playlist_create):
         playlist_name = "my playlist"
         user = SpotifyUser.objects.get(access_token="access_token")
         mock_user_playlist_create.return_value = {
@@ -83,6 +85,7 @@ class PlaylistTest(TransactionTestCase):
 
     def test_playlist_get_single(self):
         playlist_pk = 1
+
         response = self.client.get(
             reverse("api_v1:playlists:playlist", kwargs={"playlist_id": playlist_pk})
         )
@@ -90,3 +93,112 @@ class PlaylistTest(TransactionTestCase):
 
         playlist = response.json()
         self.assertEquals(playlist["pk"], playlist_pk)
+
+        # test 404
+        response = self.client.get(
+            reverse("api_v1:playlists:playlist", kwargs={"playlist_id": 9999})
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @patch("spotipy.Spotify.track")
+    def test_playlist_track_add(self, mock_track):
+        playlist_pk = 1
+        self.set_api_credentials("access_token")
+
+        # add by spotify URI and URL
+        for spotify_track in [
+            "spotify:track:1csLNQUyuhEPFiP1Qvjk9b",
+            "http://open.spotify.com/track/3Kbriu0vdmCxd6iGDGBENw?si=lqHwG7qeSIaMYYXTS9f0Pw",
+        ]:
+            mock_track.return_value = {"id": spotify_track}
+
+            response = self.client.post(
+                reverse(
+                    "api_v1:playlists:playlist_track",
+                    kwargs={"playlist_id": playlist_pk},
+                ),
+                {"spotify_id": spotify_track},
+            )
+            self.assertEqual(response.status_code, 200)
+
+            # test for saved object
+            spotify_track_id = spotify_uri_or_link_to_id(
+                spotify_track, content_type="track"
+            )
+            track = Track.objects.get(spotify_id=spotify_track_id)
+            self.assertEquals(
+                PlaylistTrack.objects.filter(
+                    playlist__pk=playlist_pk, track=track
+                ).count(),
+                1,
+            )
+
+            # try to add again
+            response = self.client.post(
+                reverse(
+                    "api_v1:playlists:playlist_track",
+                    kwargs={"playlist_id": playlist_pk},
+                ),
+                {"spotify_id": mock_track.return_value["id"]},
+            )
+            self.assertEqual(response.status_code, 400)
+
+    @patch("spotipy.Spotify.track")
+    def test_playlist_track_add_invalid_ids(self, mock_track):
+        playlist_pk = 1
+        self.set_api_credentials("access_token")
+
+        mock_track.return_value = {"id": "spotify_track_id"}
+
+        # 404 playlist add
+        response = self.client.post(
+            reverse("api_v1:playlists:playlist_track", kwargs={"playlist_id": 9999}),
+            {"spotify_id": "spotify:foo"},
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # test invalid URI
+        response = self.client.post(
+            reverse(
+                "api_v1:playlists:playlist_track", kwargs={"playlist_id": playlist_pk}
+            ),
+            {"spotify_id": "spotify:artist:"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # invalid url
+        response = self.client.post(
+            reverse(
+                "api_v1:playlists:playlist_track", kwargs={"playlist_id": playlist_pk}
+            ),
+            {"spotify_id": "http://open.spotify.com/track"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # invalid spotify content
+        response = self.client.post(
+            reverse(
+                "api_v1:playlists:playlist_track", kwargs={"playlist_id": playlist_pk}
+            ),
+            {"spotify_id": "http://open.spotify.com/artist/aaaa/"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # invalid local tracks
+        mock_track.return_value = {
+            "id": "spotify:track:1csLNQUyuhEPFiP1Qvjk9b",
+            "is_local": True,
+        }
+        response = self.client.post(
+            reverse(
+                "api_v1:playlists:playlist_track", kwargs={"playlist_id": playlist_pk}
+            ),
+            {"spotify_id": mock_track.return_value["id"]},
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_playlist_track_add_unauthorized(self):
+        response = self.client.post(
+            reverse("api_v1:playlists:playlist_track", kwargs={"playlist_id": 1})
+        )
+        self.assertEqual(response.status_code, 401)

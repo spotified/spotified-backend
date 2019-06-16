@@ -70,31 +70,10 @@ class PlaylistTrackView(AuthTokenExpiresAtHeaderMixin):
                     {"spotify_id": _("Track is local thus can't be added")}
                 )
 
-            # save artists
-            track_info_artists = track_info["album"].get("artists", [])
-            artists = []
-            for track_info_artist in track_info_artists:
-                try:
-                    artists.append(
-                        m.Artist.objects.get(spotify_id=track_info_artist["id"])
-                    )
-                except m.Artist.DoesNotExist:
-                    artist = se.ArtistSerializer(
-                        data={
-                            "spotify_id": track_info_artist["id"],
-                            "name": track_info_artist["name"],
-                        }
-                    )
-                    if artist.is_valid(raise_exception=True):
-                        artist.save()
-                        artists.append(artist.instance)
-
-            track = se.TrackSerializer(
-                data={"spotify_id": track_info["id"], "name": track_info["name"]}
-            )
+            track = se.TrackSerializer(data={"spotify_id": track_spotify_id})
 
             if track.is_valid(raise_exception=True):
-                track.save(artists=artists)
+                track.save()
 
             track_obj = track.instance
 
