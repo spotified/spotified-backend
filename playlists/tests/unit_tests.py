@@ -154,6 +154,71 @@ class PlaylistTest(TransactionTestCase):
         response = self.client.post(reverse("api_v1:playlists:playlist_track", kwargs={"playlist_id": 1}))
         self.assertEqual(response.status_code, 401)
 
+    def test_playlist_tag_add(self):
+        tag = "hello world"
+        playlist_pk = 1
+        self.set_api_credentials("access_token")
+
+        # add the same tag two twice
+        for _ in range(0, 2):
+            response = self.client.post(
+                reverse("api_v1:playlists:playlist_tags", kwargs={"playlist_id": playlist_pk}), {"name": tag}
+            )
+            self.assertEqual(response.status_code, 200)
+
+            playlist_tags = Playlist.objects.get(pk=playlist_pk).tags
+            self.assertEqual(playlist_tags.count(), 3)  # initial 2 tags
+            self.assertEqual(playlist_tags.all().order_by("-pk")[0].name, "helloworld")
+
+    def test_playlist_tag_delete(self):
+        playlist_pk = 1
+        tag_pk = 1
+        self.set_api_credentials("access_token")
+
+        response = self.client.delete(
+            reverse("api_v1:playlists:playlist_tag", kwargs={"playlist_id": playlist_pk, "tag_id": tag_pk})
+        )
+        self.assertEqual(response.status_code, 200)
+
+        playlist_tags = Playlist.objects.get(pk=playlist_pk).tags
+        self.assertEqual(playlist_tags.count(), 1)  # initial 2 tags
+
+    def test_playlist_tag_delete_invalid_ids(self):
+        self.set_api_credentials("access_token")
+
+        # invalid playlist
+        response = self.client.delete(
+            reverse("api_v1:playlists:playlist_tag", kwargs={"playlist_id": 999, "tag_id": 1})
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # invalid tag
+        response = self.client.delete(
+            reverse("api_v1:playlists:playlist_tag", kwargs={"playlist_id": 1, "tag_id": 999})
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_playlist_tag_delete_unauthorized(self):
+        response = self.client.delete(reverse("api_v1:playlists:playlist_tag", kwargs={"playlist_id": 1, "tag_id": 1}))
+        self.assertEqual(response.status_code, 401)
+
+    def test_playlist_tag_add_invalid_ids(self):
+        self.set_api_credentials("access_token")
+
+        response = self.client.post(
+            reverse("api_v1:playlists:playlist_tags", kwargs={"playlist_id": 999}), {"name": "foo"}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_playlist_tag_add_unauthorized(self):
+        response = self.client.post(reverse("api_v1:playlists:playlist_tags", kwargs={"playlist_id": 1}))
+        self.assertEqual(response.status_code, 401)
+
+    def test_tags_get(self):
+        response = self.client.get(reverse("api_v1:playlists:playlists_tags"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
+
     def test_playlist_track_vote(self):
         playlist_pk = 1
         track_pk = 1

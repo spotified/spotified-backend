@@ -27,6 +27,22 @@
     }
   },
   {
+    "model": "playlists.playlisttag",
+    "pk": 1,
+    "fields": {
+      "name": "heavymetal",
+      "count": 1
+    }
+  },
+  {
+    "model": "playlists.playlisttag",
+    "pk": 2,
+    "fields": {
+      "name": "pop",
+      "count": 1
+    }
+  },
+  {
     "model": "playlists.playlist",
     "pk": 1,
     "fields": {
@@ -36,7 +52,10 @@
       "spotify_snapshot_id": "spotify_snapshot_id_1",
       "owner": 1,
       "name": "name 1",
-      "tags": []
+      "tags": [
+        1,
+        2
+      ]
     }
   },
   {

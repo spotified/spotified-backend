@@ -28,7 +28,7 @@ class PlaylistTagSerializer(serializers.ModelSerializer):
 
     def validate_name(self, value):
         if value:
-            return value.lower()
+            return value.lower().replace(" ", "")
 
 
 class PlaylistWriteSerializer(serializers.ModelSerializer):
