@@ -3,7 +3,4 @@ from django.urls import include, path
 
 app_name = "api_v1"
 
-urlpatterns = [
-    path("auth/", include("users.urls")),
-    path("playlists/", include("playlists.urls")),
-]
+urlpatterns = [path("auth/", include("users.urls")), path("playlists/", include("playlists.urls"))]

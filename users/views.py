@@ -34,14 +34,10 @@ class OAuthFlowFinish(APIView):
             sp = spotipy.Spotify(auth=token_info["access_token"])
             user_info = sp.current_user()
 
-            user, created = SpotifyUser.objects.get_or_create(
-                spotify_id=user_info["id"]
-            )
+            user, created = SpotifyUser.objects.get_or_create(spotify_id=user_info["id"])
 
             user.access_token = token_info["access_token"]
-            user.access_token_expires_at = make_aware(
-                datetime.fromtimestamp(token_info["expires_at"])
-            )
+            user.access_token_expires_at = make_aware(datetime.fromtimestamp(token_info["expires_at"]))
             user.refresh_token = token_info["refresh_token"]
             user.save()
         except SpotifyOauthError:
@@ -54,12 +50,7 @@ class OAuthTokenRefresh(AuthTokenExpiresAtHeaderMixin):
     def post(self, request):
         request.user.request_fresh_access_token()
         response = Response(
-            {
-                "auth_token": request.user.access_token,
-                "auth_token_expires_at": request.user.access_token_expires_at,
-            }
+            {"auth_token": request.user.access_token, "auth_token_expires_at": request.user.access_token_expires_at}
         )
-        response[
-            HEADER_FIELD_X_AUTH_TOKEN_EXPIRES_AT
-        ] = request.user.access_token_expires_at.astimezone()
+        response[HEADER_FIELD_X_AUTH_TOKEN_EXPIRES_AT] = request.user.access_token_expires_at.astimezone()
         return response

@@ -10,9 +10,7 @@ from rest_framework.test import APIClient
 
 from ..authentication import TokenAuthentication
 
-TESTS_FIXTURES_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "fixtures"
-)
+TESTS_FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
 SpotifyUser = get_user_model()
 
@@ -25,9 +23,7 @@ class UserTest(TransactionTestCase):
         self.client = APIClient()
 
     def set_api_credentials(self, auth_token):
-        self.client.credentials(
-            HTTP_AUTHORIZATION="{} {}".format(TokenAuthentication.keyword, auth_token)
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="{} {}".format(TokenAuthentication.keyword, auth_token))
 
     def test_oauth_flow_start(self):
         response = self.client.get(reverse("api_v1:auth:start"))
@@ -37,9 +33,7 @@ class UserTest(TransactionTestCase):
         # test oauth URL
         oauth_url = response.json()["url"]
 
-        self.assertTrue(
-            oauth_url.startswith("https://accounts.spotify.com/authorize"), True
-        )
+        self.assertTrue(oauth_url.startswith("https://accounts.spotify.com/authorize"), True)
         self.assertIn("client_id={}".format(s.SPOTIFY_API_CLIENT_ID), oauth_url)
         self.assertIn("scope={}".format(SpotifyUser.SPOTIFY_API_SCOPES), oauth_url)
 
@@ -61,12 +55,8 @@ class UserTest(TransactionTestCase):
         # test saved user
         u = SpotifyUser.objects.get(spotify_id=mock_current_user.return_value["id"])
 
-        self.assertEquals(
-            u.access_token, mock_get_access_token.return_value["access_token"]
-        )
-        self.assertEquals(
-            u.refresh_token, mock_get_access_token.return_value["refresh_token"]
-        )
+        self.assertEquals(u.access_token, mock_get_access_token.return_value["access_token"])
+        self.assertEquals(u.refresh_token, mock_get_access_token.return_value["refresh_token"])
         self.assertEquals(u.access_token_expires_at, access_token_expires_at)
 
     @patch("spotipy.oauth2.SpotifyOAuth.refresh_access_token")
@@ -87,19 +77,12 @@ class UserTest(TransactionTestCase):
         # test updated token info
         u = SpotifyUser.objects.get(spotify_id="spotify_id")
 
-        self.assertEquals(
-            u.access_token, mock_request_fresh_access_token.return_value["access_token"]
-        )
-        self.assertEquals(
-            u.refresh_token,
-            mock_request_fresh_access_token.return_value["refresh_token"],
-        )
+        self.assertEquals(u.access_token, mock_request_fresh_access_token.return_value["access_token"])
+        self.assertEquals(u.refresh_token, mock_request_fresh_access_token.return_value["refresh_token"])
         self.assertEquals(u.access_token_expires_at, access_token_expires_at)
 
         # test new token
-        self.set_api_credentials(
-            mock_request_fresh_access_token.return_value["access_token"]
-        )
+        self.set_api_credentials(mock_request_fresh_access_token.return_value["access_token"])
 
         response = self.client.post(reverse("api_v1:auth:auth_token_refresh"))
         self.assertEqual(response.status_code, 200)

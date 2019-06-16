@@ -16,95 +16,38 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Artist",
             fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "spotify_id",
-                    models.CharField(
-                        max_length=255, unique=True, verbose_name="SpotifyID"
-                    ),
-                ),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("spotify_id", models.CharField(max_length=255, unique=True, verbose_name="SpotifyID")),
                 ("name", models.CharField(max_length=255, verbose_name="Name")),
             ],
         ),
         migrations.CreateModel(
             name="Playlist",
             fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 (
                     "created",
-                    django_extensions.db.fields.CreationDateTimeField(
-                        auto_now_add=True, verbose_name="created"
-                    ),
+                    django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name="created"),
                 ),
                 (
                     "modified",
-                    django_extensions.db.fields.ModificationDateTimeField(
-                        auto_now=True, verbose_name="modified"
-                    ),
+                    django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name="modified"),
                 ),
-                (
-                    "spotify_id",
-                    models.CharField(
-                        max_length=255, unique=True, verbose_name="SpotifyID"
-                    ),
-                ),
-                (
-                    "spotify_snapshot_id",
-                    models.CharField(max_length=60, verbose_name="Spotify SnapshotID"),
-                ),
-                (
-                    "name",
-                    models.CharField(max_length=255, unique=True, verbose_name="Name"),
-                ),
-                (
-                    "owner",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
+                ("spotify_id", models.CharField(max_length=255, unique=True, verbose_name="SpotifyID")),
+                ("spotify_snapshot_id", models.CharField(max_length=60, verbose_name="Spotify SnapshotID")),
+                ("name", models.CharField(max_length=255, unique=True, verbose_name="Name")),
+                ("owner", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
-            options={
-                "ordering": ("-modified", "-created"),
-                "get_latest_by": "modified",
-                "abstract": False,
-            },
+            options={"ordering": ("-modified", "-created"), "get_latest_by": "modified", "abstract": False},
         ),
         migrations.CreateModel(
             name="PlaylistTag",
             fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("name", models.CharField(max_length=50, unique=True)),
                 (
                     "count",
-                    models.IntegerField(
-                        default=0,
-                        help_text="Internal counter of how many times this tag is in use",
-                    ),
+                    models.IntegerField(default=0, help_text="Internal counter of how many times this tag is in use"),
                 ),
             ],
             options={"ordering": ("name",)},
@@ -112,21 +55,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Track",
             fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "spotify_id",
-                    models.CharField(
-                        max_length=255, unique=True, verbose_name="SpotifyID"
-                    ),
-                ),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("spotify_id", models.CharField(max_length=255, unique=True, verbose_name="SpotifyID")),
                 ("name", models.CharField(max_length=255, verbose_name="Name")),
                 ("artists", models.ManyToManyField(blank=True, to="playlists.Artist")),
             ],
@@ -134,93 +64,39 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PlaylistTrack",
             fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "score",
-                    models.DecimalField(
-                        decimal_places=7, max_digits=12, verbose_name="Points"
-                    ),
-                ),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("score", models.DecimalField(decimal_places=7, max_digits=12, verbose_name="Points")),
                 (
                     "date_added",
-                    django_extensions.db.fields.CreationDateTimeField(
-                        auto_now_add=True, verbose_name="added"
-                    ),
+                    django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name="added"),
                 ),
                 (
                     "added_by",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
                 ),
-                (
-                    "playlist",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="playlists.Playlist",
-                    ),
-                ),
-                (
-                    "track",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="playlists.Track",
-                    ),
-                ),
+                ("playlist", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="playlists.Playlist")),
+                ("track", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="playlists.Track")),
             ],
             options={"ordering": ["score"], "unique_together": {("playlist", "track")}},
         ),
         migrations.AddField(
-            model_name="playlist",
-            name="tags",
-            field=models.ManyToManyField(blank=True, to="playlists.PlaylistTag"),
+            model_name="playlist", name="tags", field=models.ManyToManyField(blank=True, to="playlists.PlaylistTag")
         ),
         migrations.AddField(
             model_name="playlist",
             name="tracks",
-            field=models.ManyToManyField(
-                through="playlists.PlaylistTrack", to="playlists.Track"
-            ),
+            field=models.ManyToManyField(through="playlists.PlaylistTrack", to="playlists.Track"),
         ),
         migrations.CreateModel(
             name="PlaylistTrackVote",
             fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "vote",
-                    models.SmallIntegerField(choices=[(1, "vote +1"), (-1, "vote -1")]),
-                ),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("vote", models.SmallIntegerField(choices=[(1, "vote +1"), (-1, "vote -1")])),
                 (
                     "playlist_track",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="playlists.PlaylistTrack",
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="playlists.PlaylistTrack"),
                 ),
-                (
-                    "voter",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
+                ("voter", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={"unique_together": {("voter", "playlist_track")}},
         ),

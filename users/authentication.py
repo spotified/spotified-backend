@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
-from rest_framework.authentication import (BaseAuthentication,
-                                           get_authorization_header)
+from rest_framework.authentication import BaseAuthentication, get_authorization_header
 
 SpotifyUser = get_user_model()
 
@@ -28,9 +27,7 @@ class TokenAuthentication(BaseAuthentication):
         try:
             token = auth[1].decode()
         except UnicodeError:
-            msg = _(
-                "Invalid token header. Token string should not contain invalid characters."
-            )
+            msg = _("Invalid token header. Token string should not contain invalid characters.")
             raise exceptions.AuthenticationFailed(msg)
 
         return self.authenticate_credentials(token)

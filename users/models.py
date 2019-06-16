@@ -41,31 +41,15 @@ class SpotifyUser(AbstractBaseUser, TimeStampedModel):
     password = None
     last_login = None
 
-    spotify_id = models.CharField(
-        _("SpotifyID"),
-        max_length=255,
-        unique=True,
-        blank=False,
-        null=False,
-        editable=False,
-    )
+    spotify_id = models.CharField(_("SpotifyID"), max_length=255, unique=True, blank=False, null=False, editable=False)
     is_admin = models.BooleanField(default=False)
 
     # OAuth stuff
     access_token = models.CharField(
-        _("Access Token"),
-        max_length=255,
-        blank=False,
-        null=True,
-        editable=False,
-        unique=True,
+        _("Access Token"), max_length=255, blank=False, null=True, editable=False, unique=True
     )
-    access_token_expires_at = models.DateTimeField(
-        _("Access Token Expires at"), blank=False, null=True, editable=False
-    )
-    refresh_token = models.CharField(
-        _("Refresh Token"), max_length=255, blank=False, null=True, editable=False
-    )
+    access_token_expires_at = models.DateTimeField(_("Access Token Expires at"), blank=False, null=True, editable=False)
+    refresh_token = models.CharField(_("Refresh Token"), max_length=255, blank=False, null=True, editable=False)
 
     objects = SpotifyUserManager()
     USERNAME_FIELD = "spotify_id"
@@ -73,10 +57,7 @@ class SpotifyUser(AbstractBaseUser, TimeStampedModel):
     SPOTIFY_API_SCOPES = "playlist-modify-public"
 
     oauth = oauth2.SpotifyOAuth(
-        s.SPOTIFY_API_CLIENT_ID,
-        s.SPOTIFY_API_CLIENT_SECRET,
-        s.SPOTIFY_API_AUTH_REDIRECT_URL,
-        scope=SPOTIFY_API_SCOPES,
+        s.SPOTIFY_API_CLIENT_ID, s.SPOTIFY_API_CLIENT_SECRET, s.SPOTIFY_API_AUTH_REDIRECT_URL, scope=SPOTIFY_API_SCOPES
     )
 
     def __str__(self):
@@ -113,9 +94,7 @@ class SpotifyUser(AbstractBaseUser, TimeStampedModel):
         if token_info:
             self.access_token = token_info["access_token"]
             self.refresh_token = token_info["refresh_token"]
-            self.access_token_expires_at = make_aware(
-                datetime.fromtimestamp(token_info["expires_at"])
-            )
+            self.access_token_expires_at = make_aware(datetime.fromtimestamp(token_info["expires_at"]))
             self.save()
             return True
         return False

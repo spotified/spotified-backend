@@ -7,6 +7,4 @@ class Migration(migrations.Migration):
 
     dependencies = [("users", "0002_spotifyuser_access_token_expires_at_dt")]
 
-    operations = [
-        migrations.RemoveField(model_name="spotifyuser", name="access_token_expires_at")
-    ]
+    operations = [migrations.RemoveField(model_name="spotifyuser", name="access_token_expires_at")]

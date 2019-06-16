@@ -10,9 +10,7 @@ def forwards_func(apps, schema_editor):
     # if we directly import it, it'll be the wrong version
     SpotifyUser = apps.get_model("users", "spotifyuser")
     for u in SpotifyUser.objects.all().iterator():
-        u.access_token_expires_at_dt = make_aware(
-            datetime.fromtimestamp(u.access_token_expires_at)
-        )
+        u.access_token_expires_at_dt = make_aware(datetime.fromtimestamp(u.access_token_expires_at))
         u.save()
 
 
@@ -24,9 +22,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="spotifyuser",
             name="access_token_expires_at_dt",
-            field=models.DateTimeField(
-                editable=False, null=True, verbose_name="Access Token Expires at"
-            ),
+            field=models.DateTimeField(editable=False, null=True, verbose_name="Access Token Expires at"),
         ),
         migrations.RunPython(forwards_func),
     ]

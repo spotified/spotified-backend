@@ -11,9 +11,4 @@ logger = logging.getLogger(s.LOGGER_NAME)
 
 
 def log(app_name, action, text, count=None, exc_info=False, level=LEVEL.INFO):
-    logger.log(
-        level,
-        text,
-        exc_info=exc_info,
-        extra={"tags": {"app_name": app_name, "action": action, "count": count}},
-    )
+    logger.log(level, text, exc_info=exc_info, extra={"tags": {"app_name": app_name, "action": action, "count": count}})

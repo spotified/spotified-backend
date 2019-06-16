@@ -26,9 +26,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Sentry
 sentry_exceptions_to_ignore = (
-    ["*"]
-    if len(sys.argv) > 1 and sys.argv[1] in ["shell", "shell_plus"]
-    else ["KeyboardInterrupt"]
+    ["*"] if len(sys.argv) > 1 and sys.argv[1] in ["shell", "shell_plus"] else ["KeyboardInterrupt"]
 )
 
 RAVEN_CONFIG = {

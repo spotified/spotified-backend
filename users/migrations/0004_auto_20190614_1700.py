@@ -9,8 +9,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name="spotifyuser",
-            old_name="access_token_expires_at_dt",
-            new_name="access_token_expires_at",
+            model_name="spotifyuser", old_name="access_token_expires_at_dt", new_name="access_token_expires_at"
         )
     ]

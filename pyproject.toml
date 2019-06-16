@@ -20,6 +20,9 @@ gunicorn = "^19.9"
 coverage = "^4.5"
 tblib = "^1.4"
 
+[tool.black]
+line-length = 120
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"

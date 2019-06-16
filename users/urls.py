@@ -7,7 +7,5 @@ app_name = "auth"
 urlpatterns = [
     path("start/", views.OAuthFlowStart.as_view(), name="start"),
     path("finish/", views.OAuthFlowFinish.as_view(), name="finish"),
-    path(
-        "token/refresh/", views.OAuthTokenRefresh.as_view(), name="auth_token_refresh"
-    ),
+    path("token/refresh/", views.OAuthTokenRefresh.as_view(), name="auth_token_refresh"),
 ]

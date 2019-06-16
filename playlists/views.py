@@ -27,23 +27,16 @@ class PlaylistView(AuthTokenExpiresAtHeaderMixin):
             return Response(playlists.data)
 
     def post(self, request):
-        playlist = se.PlaylistWriteSerializer(
-            data={**request.data, **{"owner": request.user.pk}}
-        )
+        playlist = se.PlaylistWriteSerializer(data={**request.data, **{"owner": request.user.pk}})
 
         if playlist.is_valid(raise_exception=True):
             # create Playlist at Spotify
             create_response = request.user.spotify_api.user_playlist_create(
-                request.user.spotify_id,
-                "{}".format(playlist.validated_data["name"]),
-                public=True,
+                request.user.spotify_id, "{}".format(playlist.validated_data["name"]), public=True
             )
 
             # save the playlist
-            playlist.save(
-                spotify_id=create_response["id"],
-                spotify_snapshot_id=create_response["snapshot_id"],
-            )
+            playlist.save(spotify_id=create_response["id"], spotify_snapshot_id=create_response["snapshot_id"])
 
             return Response(playlist.data)
 
@@ -52,9 +45,7 @@ class PlaylistTrackView(AuthTokenExpiresAtHeaderMixin):
     @transaction.atomic()
     def post(self, request, playlist_id):
         playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
-        track_spotify_id = spotify_uri_or_link_to_id(
-            request.data.get("spotify_id"), content_type="track"
-        )
+        track_spotify_id = spotify_uri_or_link_to_id(request.data.get("spotify_id"), content_type="track")
 
         try:
             track_obj = m.Track.objects.get(spotify_id=track_spotify_id)
@@ -66,9 +57,7 @@ class PlaylistTrackView(AuthTokenExpiresAtHeaderMixin):
                 raise ValidationError({"spotify_id": _("Track unknown")})
 
             if track_info.get("is_local"):
-                raise ValidationError(
-                    {"spotify_id": _("Track is local thus can't be added")}
-                )
+                raise ValidationError({"spotify_id": _("Track is local thus can't be added")})
 
             track = se.TrackSerializer(data={"spotify_id": track_spotify_id})
 
@@ -83,9 +72,7 @@ class PlaylistTrackView(AuthTokenExpiresAtHeaderMixin):
         )
 
         if not created:
-            raise ValidationError(
-                {"spotify_id": _("The track is already included in this playlist")}
-            )
+            raise ValidationError({"spotify_id": _("The track is already included in this playlist")})
 
         return Response({})
 
@@ -94,9 +81,7 @@ class PlaylistTrackVoteView(AuthTokenExpiresAtHeaderMixin):
     def post(self, request, playlist_id, track_id, up_or_down):
         playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
         track_obj = get_object_or_404(m.Track, pk=track_id)
-        playlist_track_obj = m.PlaylistTrack.objects.get(
-            playlist=playlist_obj, track=track_obj
-        )
+        playlist_track_obj = m.PlaylistTrack.objects.get(playlist=playlist_obj, track=track_obj)
 
         if up_or_down == "up":
             up_or_down = m.PlaylistTrackVote.VOTE_UP
@@ -111,11 +96,7 @@ class PlaylistTrackVoteView(AuthTokenExpiresAtHeaderMixin):
             playlist_track_vote_obj.save()
         except m.PlaylistTrackVote.DoesNotExist:
             playlist_track_vote = se.PlaylistTrackVoteSerializer(
-                data={
-                    "voter": request.user.pk,
-                    "playlist_track": playlist_track_obj.pk,
-                    "vote": up_or_down,
-                }
+                data={"voter": request.user.pk, "playlist_track": playlist_track_obj.pk, "vote": up_or_down}
             )
 
             if playlist_track_vote.is_valid(raise_exception=True):
@@ -147,9 +128,7 @@ class PlaylistTagsView(AuthTokenExpiresAtHeaderMixin):
     @transaction.atomic()
     def delete(self, request, playlist_id, tag_id):
         playlist_obj = get_object_or_404(m.Playlist, pk=playlist_id)
-        tag_obj = get_object_or_404(
-            m.PlaylistTag.objects.select_for_update(), pk=tag_id
-        )
+        tag_obj = get_object_or_404(m.PlaylistTag.objects.select_for_update(), pk=tag_id)
 
         playlist_obj.tags.filter(pk=tag_obj.pk).delete()
         tag_obj.count = tag_obj.count - 1
@@ -163,8 +142,6 @@ class TagView(AuthTokenExpiresAtHeaderMixin):
 
     def get(self, request):
         name = self.request.query_params.get("name", "")
-        tag_objs = m.PlaylistTag.objects.filter(name__startswith=name).order_by(
-            "-count"
-        )[0:50]
+        tag_objs = m.PlaylistTag.objects.filter(name__startswith=name).order_by("-count")[0:50]
         tags = se.PlaylistTagSerializer(instance=tag_objs, many=True)
         return Response(tags.data)

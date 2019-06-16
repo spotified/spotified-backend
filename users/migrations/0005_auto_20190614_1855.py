@@ -11,12 +11,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="spotifyuser",
             name="access_token",
-            field=models.CharField(
-                editable=False,
-                max_length=255,
-                null=True,
-                unique=True,
-                verbose_name="Access Token",
-            ),
+            field=models.CharField(editable=False, max_length=255, null=True, unique=True, verbose_name="Access Token"),
         )
     ]

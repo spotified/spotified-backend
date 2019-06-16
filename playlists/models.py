@@ -9,9 +9,7 @@ from django_extensions.db.models import TimeStampedModel
 
 
 class Track(models.Model):
-    spotify_id = models.CharField(
-        _("SpotifyID"), max_length=255, blank=False, null=False, unique=True
-    )
+    spotify_id = models.CharField(_("SpotifyID"), max_length=255, blank=False, null=False, unique=True)
 
     def __str__(self):
         return self.spotify_id
@@ -19,9 +17,7 @@ class Track(models.Model):
 
 class PlaylistTag(models.Model):
     name = models.CharField(max_length=50, blank=False, unique=True)
-    count = models.IntegerField(
-        default=0, help_text="Internal counter of how many times this tag is in use"
-    )
+    count = models.IntegerField(default=0, help_text="Internal counter of how many times this tag is in use")
 
     class Meta:
         ordering = ("name",)
@@ -31,18 +27,10 @@ class PlaylistTag(models.Model):
 
 
 class Playlist(TimeStampedModel):
-    spotify_id = models.CharField(
-        _("SpotifyID"), max_length=255, blank=False, null=False, unique=True
-    )
-    spotify_snapshot_id = models.CharField(
-        _("Spotify SnapshotID"), max_length=60, blank=False, null=False
-    )
-    owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False
-    )
-    name = models.CharField(
-        _("Name"), max_length=255, blank=False, null=False, unique=True
-    )
+    spotify_id = models.CharField(_("SpotifyID"), max_length=255, blank=False, null=False, unique=True)
+    spotify_snapshot_id = models.CharField(_("Spotify SnapshotID"), max_length=60, blank=False, null=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False)
+    name = models.CharField(_("Name"), max_length=255, blank=False, null=False, unique=True)
 
     tracks = models.ManyToManyField(Track, through="PlaylistTrack")
     tags = models.ManyToManyField(PlaylistTag, blank=True)
@@ -56,9 +44,7 @@ class Playlist(TimeStampedModel):
 
     def upload_to_spotify(self):
         response = self.owner.spotify_api.user_playlist_replace_tracks(
-            self.owner.spotify_id,
-            self.spotify_id,
-            tracks=[track.spotify_id for track in self.tracks_score_ordered],
+            self.owner.spotify_id, self.spotify_id, tracks=[track.spotify_id for track in self.tracks_score_ordered]
         )
         self.spotify_snapshot_id = response["snapshot_id"]
         self.save()
@@ -69,9 +55,7 @@ class PlaylistTrack(models.Model):
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
 
     score = models.DecimalField(_("Points"), decimal_places=7, max_digits=12)
-    added_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False
-    )
+    added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False)
     date_added = CreationDateTimeField(_("added"))
 
     class Meta:
@@ -89,12 +73,8 @@ class PlaylistTrack(models.Model):
             downs = 0
             submission_date = now()
         else:
-            ups = PlaylistTrackVote.objects.filter(
-                playlist_track=self, vote=PlaylistTrackVote.VOTE_UP
-            ).count()
-            downs = PlaylistTrackVote.objects.filter(
-                playlist_track=self, vote=PlaylistTrackVote.VOTE_DOWN
-            ).count()
+            ups = PlaylistTrackVote.objects.filter(playlist_track=self, vote=PlaylistTrackVote.VOTE_UP).count()
+            downs = PlaylistTrackVote.objects.filter(playlist_track=self, vote=PlaylistTrackVote.VOTE_DOWN).count()
             submission_date = self.date_added
 
         score = 0
@@ -125,12 +105,8 @@ class PlaylistTrack(models.Model):
 
 
 class PlaylistTrackVote(models.Model):
-    voter = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False
-    )
-    playlist_track = models.ForeignKey(
-        PlaylistTrack, on_delete=models.CASCADE, blank=False, null=False
-    )
+    voter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False)
+    playlist_track = models.ForeignKey(PlaylistTrack, on_delete=models.CASCADE, blank=False, null=False)
 
     VOTE_UP = 1
     VOTE_DOWN = -1
