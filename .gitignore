@@ -9,3 +9,5 @@
 /.project
 /deployment/ansible/*.retry
 /deployment/ansible/group_vars/all/secrets.yml
+/.coverage
+/htmlcov/

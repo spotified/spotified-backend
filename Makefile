@@ -14,3 +14,8 @@ deploy_production:
 pre_commit_all:
 	pre-commit install
 	pre-commit run --all-files
+
+test:
+	coverage run manage.py test --parallel
+	coverage report
+	coverage erase

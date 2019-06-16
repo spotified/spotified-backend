@@ -1,0 +1,9 @@
+[run]
+omit =
+    venv/*
+    virtualenv/*
+    .venv/*
+    .virtualenv/*
+
+source =
+    ./

@@ -6,7 +6,7 @@ authors = ["Bernhard Janetzki <boerni@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = ">=3.6"
+python = "^3.6"
 django = "^2.2"
 django_js_reverse = "^0.9.1"
 djangorestframework = "^3.9"
@@ -17,6 +17,7 @@ spotipy = "^2.4"
 gunicorn = "^19.9"
 
 [tool.poetry.dev-dependencies]
+coverage = "^4.5"
 
 [build-system]
 requires = ["poetry>=0.12"]
