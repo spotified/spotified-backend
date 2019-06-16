@@ -1,0 +1,15 @@
+[
+  {
+    "model": "users.spotifyuser",
+    "pk": 1,
+    "fields": {
+      "created": "2019-06-15T17:20:57.078Z",
+      "modified": "2019-06-16T12:17:49.938Z",
+      "spotify_id": "spotify_id",
+      "is_admin": false,
+      "access_token": "access_token",
+      "access_token_expires_at": "2019-06-16T13:17:49Z",
+      "refresh_token": "refresh_token"
+    }
+  }
+]
