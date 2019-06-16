@@ -58,6 +58,11 @@
       args:
         creates: /etc/nginx/dhparams.pem
 
+    - name: Creates static app dir
+      file:
+        path: "{{ app_home }}/"
+        state: directory
+
     - name: Install nginx site for specified site
       template:
         src: templates/nginx-https.j2
