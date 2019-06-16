@@ -32,7 +32,7 @@ class PlaylistView(AuthTokenExpiresAtHeaderMixin):
         )
 
         if playlist.is_valid(raise_exception=True):
-            # create Playlist  Spotify
+            # create Playlist at Spotify
             create_response = request.user.spotify_api.user_playlist_create(
                 request.user.spotify_id,
                 "{}".format(playlist.validated_data["name"]),

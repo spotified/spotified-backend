@@ -22,8 +22,7 @@ class UserTest(TransactionTestCase):
     fixtures = ["users.json"]
 
     def setUp(self):
-        # Every test needs a client.
-        self.client = APIClient(format="json")
+        self.client = APIClient()
 
     def set_api_credentials(self, auth_token):
         self.client.credentials(

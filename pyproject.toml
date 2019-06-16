@@ -18,6 +18,7 @@ gunicorn = "^19.9"
 
 [tool.poetry.dev-dependencies]
 coverage = "^4.5"
+tblib = "^1.4"
 
 [build-system]
 requires = ["poetry>=0.12"]

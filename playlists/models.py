@@ -8,17 +8,10 @@ from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
 
-class Artist(models.Model):
-    spotify_id = models.CharField(
-        _("SpotifyID"), max_length=255, blank=False, null=False, unique=True
-    )
-
-
 class Track(models.Model):
     spotify_id = models.CharField(
         _("SpotifyID"), max_length=255, blank=False, null=False, unique=True
     )
-    artists = models.ManyToManyField(Artist, blank=True)
 
 
 class PlaylistTag(models.Model):

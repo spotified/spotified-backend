@@ -16,6 +16,8 @@ pre_commit_all:
 	pre-commit run --all-files
 
 test:
-	coverage run manage.py test --parallel
+	coverage erase
+	coverage run --parallel-mode --concurrency=multiprocessing manage.py test --parallel
+	coverage combine
 	coverage report
 	coverage erase

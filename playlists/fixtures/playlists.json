@@ -1,0 +1,77 @@
+[
+  {
+    "model": "users.spotifyuser",
+    "pk": 1,
+    "fields": {
+      "created": "2019-06-15T17:20:57.078Z",
+      "modified": "2019-06-16T15:50:13.004Z",
+      "spotify_id": "spotify_id_1",
+      "is_admin": false,
+      "access_token": "access_token",
+      "access_token_expires_at": "2019-06-16T16:50:13Z",
+      "refresh_token": "AQCUPzR4zWO-ToIzeOMp3V376icgQf4lkwM1UmIcKrril2iboG9xCvLe6oq7gefJawLUd44jyH1Rd-e_RqBF1FKaKeklEcvpAy1s_g2fhvmAKZUE3w79Y3KefccwIXujyKUL_w"
+    }
+  },
+  {
+    "model": "playlists.track",
+    "pk": 1,
+    "fields": {
+      "spotify_id": "1csLNQUyuhEPFiP1Qvjk9b"
+    }
+  },
+  {
+    "model": "playlists.track",
+    "pk": 2,
+    "fields": {
+      "spotify_id": "3Kbriu0vdmCxd6iGDGBENw"
+    }
+  },
+  {
+    "model": "playlists.playlist",
+    "pk": 1,
+    "fields": {
+      "created": "2019-06-15T17:21:20.565Z",
+      "modified": "2019-06-15T17:21:20.565Z",
+      "spotify_id": "spotify_id_1",
+      "spotify_snapshot_id": "MSwxZWI2MTQyOWZmMDkzYmEyOTg2ZGNlMmIyNmJiODlmNmRjYTUxYjRm",
+      "owner": 1,
+      "name": "name 1",
+      "tags": []
+    }
+  },
+  {
+    "model": "playlists.playlist",
+    "pk": 2,
+    "fields": {
+      "created": "2019-06-15T17:21:20.565Z",
+      "modified": "2019-06-15T17:21:20.565Z",
+      "spotify_id": "spotify_id_2",
+      "spotify_snapshot_id": "MSwxZWI2MTQyOWZmMDkzYmEyOTg2ZGNlMmIyNmJiODlmNmRjYTUxYjRm",
+      "owner": 1,
+      "name": "name 2",
+      "tags": []
+    }
+  },
+  {
+    "model": "playlists.playlisttrack",
+    "pk": 1,
+    "fields": {
+      "playlist": 1,
+      "track": 1,
+      "score": "1.0000000",
+      "added_by": 1,
+      "date_added": "2019-06-16T15:50:13.168Z"
+    }
+  },
+  {
+    "model": "playlists.playlisttrack",
+    "pk": 2,
+    "fields": {
+      "playlist": 1,
+      "track": 2,
+      "score": "1.0000000",
+      "added_by": 1,
+      "date_added": "2019-06-16T15:51:26.239Z"
+    }
+  }
+]

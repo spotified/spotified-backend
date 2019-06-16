@@ -2,25 +2,13 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from .models import Artist, Playlist, PlaylistTag, PlaylistTrackVote, Track
-
-
-class ArtistSerializer(serializers.ModelSerializer):
-    def create(self, validated_data):
-        instance, _ = Artist.objects.get_or_create(**validated_data)
-        return instance
-
-    class Meta:
-        model = Artist
-        fields = ("spotify_id",)
+from .models import Playlist, PlaylistTag, PlaylistTrackVote, Track
 
 
 class TrackSerializer(serializers.ModelSerializer):
-    artists = ArtistSerializer(many=True, read_only=True)
-
     class Meta:
         model = Track
-        fields = ("spotify_id", "artists")
+        fields = ("pk", "spotify_id")
 
 
 class SpotifyUserSerializer(serializers.ModelSerializer):
@@ -50,13 +38,12 @@ class PlaylistWriteSerializer(serializers.ModelSerializer):
 
 
 class PlaylistReadSerializer(serializers.ModelSerializer):
-    owner = SpotifyUserSerializer(read_only=True)
     tags = PlaylistTagSerializer(many=True)
     tracks = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Playlist
-        fields = ("pk", "name", "owner", "tracks", "tags")
+        fields = ("pk", "spotify_id", "name", "tracks", "tags")
 
     def get_tracks(self, instance):
         if isinstance(instance, Playlist):

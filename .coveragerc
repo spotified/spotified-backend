@@ -1,4 +1,5 @@
 [run]
+concurrency=multiprocessing
 omit =
     venv/*
     virtualenv/*
@@ -7,3 +8,4 @@ omit =
 
 source =
     ./
+

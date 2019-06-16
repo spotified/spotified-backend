@@ -11,3 +11,4 @@
 /deployment/ansible/group_vars/all/secrets.yml
 /.coverage
 /htmlcov/
+/.coverage.*.*
