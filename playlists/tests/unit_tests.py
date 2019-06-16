@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 from users.authentication import TokenAuthentication
 from utils.spotify import spotify_uri_or_link_to_id
 
-from ..models import Playlist, PlaylistTrack, Track
+from ..models import Playlist, PlaylistTrack, PlaylistTrackVote, Track
 
 TESTS_FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
@@ -152,4 +152,70 @@ class PlaylistTest(TransactionTestCase):
 
     def test_playlist_track_add_unauthorized(self):
         response = self.client.post(reverse("api_v1:playlists:playlist_track", kwargs={"playlist_id": 1}))
+        self.assertEqual(response.status_code, 401)
+
+    def test_playlist_track_vote(self):
+        playlist_pk = 1
+        track_pk = 1
+
+        self.set_api_credentials("access_token")
+        voter = SpotifyUser.objects.get(access_token="access_token")
+
+        # vote up
+        response = self.client.post(
+            reverse(
+                "api_v1:playlists:playlist_track_vote",
+                kwargs={"playlist_id": playlist_pk, "track_id": track_pk, "up_or_down": "up"},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+
+        vote = PlaylistTrackVote.objects.get(
+            voter=voter, playlist_track__playlist__pk=playlist_pk, playlist_track__track=track_pk
+        )
+        self.assertEquals(vote.vote, PlaylistTrackVote.VOTE_UP)
+
+        # vote down
+        response = self.client.post(
+            reverse(
+                "api_v1:playlists:playlist_track_vote",
+                kwargs={"playlist_id": playlist_pk, "track_id": track_pk, "up_or_down": "down"},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+
+        vote = PlaylistTrackVote.objects.get(
+            voter=voter, playlist_track__playlist__pk=playlist_pk, playlist_track__track=track_pk
+        )
+        self.assertEquals(vote.vote, PlaylistTrackVote.VOTE_DOWN)
+
+    def test_playlist_track_vote_invalid_ids(self):
+        playlist_pk = 1
+        track_pk = 1
+        self.set_api_credentials("access_token")
+
+        # invalid playlist
+        response = self.client.post(
+            reverse(
+                "api_v1:playlists:playlist_track_vote",
+                kwargs={"playlist_id": 999, "track_id": track_pk, "up_or_down": "up"},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # invalid track
+        response = self.client.post(
+            reverse(
+                "api_v1:playlists:playlist_track_vote",
+                kwargs={"playlist_id": playlist_pk, "track_id": 999, "up_or_down": "up"},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_playlist_track_vote_unauthorized(self):
+        response = self.client.post(
+            reverse(
+                "api_v1:playlists:playlist_track_vote", kwargs={"playlist_id": 1, "track_id": 1, "up_or_down": "up"}
+            )
+        )
         self.assertEqual(response.status_code, 401)
