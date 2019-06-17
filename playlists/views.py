@@ -78,6 +78,9 @@ class PlaylistTrackView(AuthTokenExpiresAtHeaderMixin):
         if not created:
             raise ValidationError({"spotify_id": _("The track is already included in this playlist")})
 
+        # set playlist modified and trigger playlist change
+        playlist_obj.save()
+
         return Response({})
 
 
@@ -127,6 +130,9 @@ class PlaylistTagsView(AuthTokenExpiresAtHeaderMixin):
                 tag.instance.save()
                 playlist_obj.tags.add(tag.instance)
 
+                # set playlist modified and trigger playlist change
+                playlist_obj.save()
+
         return Response(tag.data)
 
     @transaction.atomic()
@@ -137,6 +143,9 @@ class PlaylistTagsView(AuthTokenExpiresAtHeaderMixin):
         playlist_obj.tags.filter(pk=tag_obj.pk).delete()
         tag_obj.count = tag_obj.count - 1
         tag_obj.save()
+
+        # set playlist modified and trigger playlist change
+        playlist_obj.save()
 
         return Response({})
 
