@@ -3,6 +3,7 @@ from math import exp, sqrt
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
@@ -81,14 +82,21 @@ class PlaylistTrack(models.Model):
         extended by submission time gravity
         """
 
+        ups = 0
+        downs = 0
+
         if not self.pk:
-            ups = 0
-            downs = 0
             submission_date = now()
         else:
-            ups = PlaylistTrackVote.objects.filter(playlist_track=self, vote=PlaylistTrackVote.VOTE_UP).count()
-            downs = PlaylistTrackVote.objects.filter(playlist_track=self, vote=PlaylistTrackVote.VOTE_DOWN).count()
             submission_date = self.date_added
+
+            votes = self.playlisttrackvote_set.all().values("vote").annotate(votes=Count("vote"))
+
+            for vote in votes:
+                if vote["vote"] == PlaylistTrackVote.VOTE_UP:
+                    ups = vote["votes"]
+                elif vote["vote"] == PlaylistTrackVote.VOTE_DOWN:
+                    downs = vote["votes"]
 
         score = 0
         submission_age = now() - submission_date
@@ -108,7 +116,7 @@ class PlaylistTrack(models.Model):
             score = (left - right) / under
 
         if submission_age.seconds < 172800:
-            score += exp(-1 * (submission_age.seconds / 36000)) / max(downs - ups, 1)
+            score += exp(-1 * (submission_age.seconds / 36000)) / max((downs - ups) / 5, 1)
 
         score = Decimal(score)
         self.score = score.quantize(Decimal(10) ** -PlaylistTrack._meta.get_field("score").decimal_places)

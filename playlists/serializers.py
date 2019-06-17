@@ -1,4 +1,7 @@
+from collections import defaultdict
+
 from django.contrib.auth import get_user_model
+from django.db.models import Count
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
@@ -6,9 +9,11 @@ from .models import Playlist, PlaylistTag, PlaylistTrackVote, Track
 
 
 class TrackSerializer(serializers.ModelSerializer):
+    votes = serializers.DictField()
+
     class Meta:
         model = Track
-        fields = ("pk", "spotify_id")
+        fields = ("pk", "spotify_id", "votes")
 
 
 class SpotifyUserSerializer(serializers.ModelSerializer):
@@ -48,9 +53,28 @@ class PlaylistReadSerializer(serializers.ModelSerializer):
     def get_tracks(self, instance):
         if isinstance(instance, Playlist):
             tracks = instance.tracks_score_ordered
+
+            # collect votes for playlist tracks
+            votes = (
+                PlaylistTrackVote.objects.filter(playlist_track__track__in=tracks)
+                .values("playlist_track__pk", "vote")
+                .annotate(votes=Count("vote"))
+            )
+
+            tracks_votes_dict = defaultdict(lambda: {"ups": 0, "downs": 0})
+
+            for vote in votes:
+                if vote["vote"] == PlaylistTrackVote.VOTE_UP:
+                    tracks_votes_dict[vote["playlist_track__pk"]]["ups"] = vote["votes"]
+                elif vote["vote"] == PlaylistTrackVote.VOTE_DOWN:
+                    tracks_votes_dict[vote["playlist_track__pk"]]["downs"] = vote["votes"]
+
+            for track in tracks:
+                track.votes = tracks_votes_dict[track.pk]
+
             return TrackSerializer(tracks, many=True).data
         else:
-            return None
+            return []
 
 
 class PlaylistTrackVoteSerializer(serializers.ModelSerializer):

@@ -22,6 +22,7 @@ coverage = "^4.5"
 tblib = "^1.4"
 pyyaml = "^5.1"
 coreapi = "^2.3"
+ipython = "^7.5"
 
 [tool.black]
 line-length = 120
