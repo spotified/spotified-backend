@@ -9,7 +9,7 @@ from .models import Playlist, PlaylistTag, PlaylistTrackVote, Track
 
 
 class TrackSerializer(serializers.ModelSerializer):
-    votes = serializers.DictField()
+    votes = serializers.DictField(read_only=True)
 
     class Meta:
         model = Track
