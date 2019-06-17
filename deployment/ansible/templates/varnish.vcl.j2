@@ -38,7 +38,13 @@ sub vcl_backend_response {
         set beresp.do_gzip = true;
     }
 
+    # no cache-control => cache forever
+    if (!beresp.http.cache-control) {
+        set beresp.ttl = 365d;
+    }
+
     set beresp.http.x-url = bereq.url;
+
     unset beresp.http.cache-control;
     unset beresp.http.expires;
 }
