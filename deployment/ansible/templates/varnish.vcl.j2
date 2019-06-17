@@ -40,7 +40,7 @@ sub vcl_backend_response {
 
     # no cache-control => cache forever
     if (!beresp.http.cache-control) {
-        set beresp.ttl = 365d;
+        set beresp.ttl = 7d;
     }
 
     set beresp.http.x-url = bereq.url;

@@ -111,6 +111,11 @@
         regexp: '^DEBUG = True$'
         replace: "DEBUG = False"
 
+    - name: Clean pyc
+      become: true
+      become_user: "{{ app_user }}"
+      command: "{{ manage_py }} djarnish_purge '.*'"
+
     - name: Gunicorn .service file is in place
       template:
         src: templates/gunicorn.service.j2
