@@ -86,6 +86,13 @@
         dest: "{{ app_dir }}/config/includes/_20_credentials.py"
       when: p.stat.exists == False
 
+    - name: Create _50_env_production.py
+      become: true
+      become_user: "{{ app_user }}"
+      template:
+        src: templates/_50_env_production.py.j2
+        dest: "{{ app_dir }}/config/includes/_50_env_production.py"
+
     - name: Run Migrations
       become: true
       become_user: "{{ app_user }}"

@@ -14,6 +14,12 @@ map $http_origin $do_cors {
   spotified.netlify.com 'true';
 }
 
+upstream varnish {
+{% for host in groups['varnish'] %}
+    server {{ hostvars[host].lan_ip }}:6081;
+{% endfor %}
+}
+
 # HTTPS server
 #
 server {
@@ -63,7 +69,7 @@ server {
             return 204;
         }
 
-        proxy_pass http://{{ hostvars['app-1.spotified.403.io'].lan_ip }}:{{gunicorn_port}}/api/;
+        proxy_pass http://varnish/api/;
         proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
         proxy_redirect off;
         proxy_buffering off;

@@ -4,6 +4,7 @@ import spotipy
 from django.contrib.auth import get_user_model
 from django.utils.timezone import make_aware
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.cache import cache_control
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,6 +18,7 @@ SpotifyUser = get_user_model()
 class OAuthFlowStart(APIView):
     permission_classes = ()
 
+    @cache_control(max_age=60)
     def get(self, request, *args, **kwargs):
         return Response({"url": SpotifyUser.oauth.get_authorize_url()})
 

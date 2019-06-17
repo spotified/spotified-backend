@@ -1,6 +1,9 @@
 [reverse_proxy]
 reverse-proxy-1.spotified.403.io lan_ip=10.135.161.91
 
+[varnish]
+varnish-1.spotified.403.io lan_ip=10.135.161.91
+
 [app]
 app-1.spotified.403.io lan_ip=10.135.161.159
 

@@ -1,6 +1,8 @@
 from django.db import transaction
 from django.db.models import F
+from django.utils.cache import patch_cache_control
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.cache import cache_control
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -24,7 +26,9 @@ class PlaylistView(AuthTokenExpiresAtHeaderMixin):
         else:
             playlist_qs = m.Playlist.objects.all()
             playlists = se.PlaylistReadSerializer(playlist_qs, many=True)
-            return Response(playlists.data)
+            response = Response(playlists.data)
+            patch_cache_control(response, max_age=60)
+            return response
 
     def post(self, request):
         playlist = se.PlaylistWriteSerializer(data={**request.data, **{"owner": request.user.pk}})
@@ -140,6 +144,7 @@ class PlaylistTagsView(AuthTokenExpiresAtHeaderMixin):
 class TagView(AuthTokenExpiresAtHeaderMixin):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
+    @cache_control(max_age=3600)
     def get(self, request):
         name = self.request.query_params.get("name", "")
         tag_objs = m.PlaylistTag.objects.filter(name__startswith=name).order_by("-count")[0:50]

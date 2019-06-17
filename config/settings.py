@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "api",
     "users",
     "playlists",
+    "djarnish",
     # External Apps.
     "django_extensions",
     "raven.contrib.django.raven_compat",

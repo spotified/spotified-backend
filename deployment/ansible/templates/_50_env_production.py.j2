@@ -4,11 +4,21 @@ import raven
 from config.includes import _20_credentials as c
 from django.conf import settings as s
 
-BASE_URL = "https://spotified.403.io/"
+BASE_URL = "https://{{ domain_name }}/"
 SPOTIFY_API_AUTH_REDIRECT_URL = "http://localhost:3000/auth/finish/"
 
 DEBUG = False
-ALLOWED_HOSTS = ["spotified.403.io"]
+ALLOWED_HOSTS = [
+    "{{ domain_name }}",
+{% for host in groups['app'] %}
+    "{{ hostvars[host].lan_ip }}",
+    "{{ host }}",
+{% endfor %}
+{% for host in groups['varnish'] %}
+    "{{ hostvars[host].lan_ip }}",
+    "{{ host }}",
+{% endfor %}
+]
 
 DATABASES = {
     "default": {
@@ -36,3 +46,9 @@ RAVEN_CONFIG = {
     "release": raven.fetch_git_sha(s.BASE_DIR),
     "ignore_exceptions": sentry_exceptions_to_ignore,
 }
+
+DJARNISH_SERVERS = [
+{% for host in groups['varnish'] %}
+    "{{ hostvars[host].lan_ip }}:6081",
+{% endfor %}
+]

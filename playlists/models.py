@@ -1,11 +1,14 @@
+from decimal import Decimal
 from math import exp, sqrt
 
 from django.conf import settings
 from django.db import models
+from django.urls import reverse_lazy
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
+from model_utils import FieldTracker
 
 
 class Track(models.Model):
@@ -35,8 +38,16 @@ class Playlist(TimeStampedModel):
     tracks = models.ManyToManyField(Track, through="PlaylistTrack")
     tags = models.ManyToManyField(PlaylistTag, blank=True)
 
+    tracker = FieldTracker()
+
+    class Meta:
+        djarnish_observed = ("get_absolute_url",)
+
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse_lazy("api_v1:playlists:playlist", args=[self.pk])
 
     @property
     def tracks_score_ordered(self):
@@ -54,9 +65,11 @@ class PlaylistTrack(models.Model):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
 
-    score = models.DecimalField(_("Points"), decimal_places=7, max_digits=12)
+    score = models.DecimalField(_("Points"), decimal_places=4, max_digits=6)
     added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False)
     date_added = CreationDateTimeField(_("added"))
+
+    tracker = FieldTracker()
 
     class Meta:
         unique_together = ("playlist", "track")
@@ -97,11 +110,17 @@ class PlaylistTrack(models.Model):
         if submission_age.seconds < 172800:
             score += exp(-1 * (submission_age.seconds / 36000)) / max(downs - ups, 1)
 
-        return score
+        score = Decimal(score)
+        self.score = score.quantize(Decimal(10) ** -PlaylistTrack._meta.get_field("score").decimal_places)
 
     def save(self, *args, **kwargs):
-        self.score = self.calculate_score()
-        super().save(*args, **kwargs)
+        self.calculate_score()
+
+        if self.tracker.changed():
+            super().save(*args, **kwargs)
+
+            # set playlist modified and trigger playlist change
+            self.playlist.save()
 
 
 class PlaylistTrackVote(models.Model):
