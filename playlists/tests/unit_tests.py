@@ -96,7 +96,7 @@ class PlaylistTest(TransactionTestCase):
             )
             self.assertEqual(response.status_code, 200)
 
-            # test for saved object
+            # test saved object
             spotify_track_id = spotify_uri_or_link_to_id(spotify_track, content_type="track")
             track = Track.objects.get(spotify_id=spotify_track_id)
             self.assertEquals(PlaylistTrack.objects.filter(playlist__pk=playlist_pk, track=track).count(), 1)

@@ -115,8 +115,8 @@ class PlaylistTrack(models.Model):
 
             score = (left - right) / under
 
-        if submission_age.seconds < 172800:
-            score += exp(-1 * (submission_age.seconds / 36000)) / max((downs - ups) / 5, 1)
+        if submission_age.total_seconds() < 172800:
+            score += exp(-1 * (submission_age.total_seconds() / 36000)) / max((downs - ups) / 5, 1)
 
         score = Decimal(score)
         self.score = score.quantize(Decimal(10) ** -PlaylistTrack._meta.get_field("score").decimal_places)

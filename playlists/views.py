@@ -24,7 +24,7 @@ class PlaylistView(AuthTokenExpiresAtHeaderMixin):
             playlist = se.PlaylistReadSerializer(instance=playlist_obj)
             return Response(playlist.data)
         else:
-            playlist_qs = m.Playlist.objects.all()
+            playlist_qs = m.Playlist.objects.all().order_by("-modified")[0:20]
             playlists = se.PlaylistReadSerializer(playlist_qs, many=True)
             response = Response(playlists.data)
             patch_cache_control(response, max_age=60)

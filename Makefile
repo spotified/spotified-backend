@@ -4,6 +4,7 @@ PROJECT := config
 PROJECT_DIR := $(abspath $(shell pwd))
 
 deploy_production:
+	./manage.py test --parallel
 	cd ../spotified-frontend/ && git pull && yarn install && npm run build
 	rm -r var/static/*; cp -r ../spotified-frontend/build/* var/static;
 	./manage.py collectstatic_js_reverse
