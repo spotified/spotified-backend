@@ -47,6 +47,8 @@ server {
     # Set HSTS to 365 days
     add_header Strict-Transport-Security 'max-age=31536000; includeSubDomains; preload' always;
 
+    add_header X-Frame-Options SAMEORIGIN;
+
     ssl_dhparam /etc/nginx/dhparams.pem;
 
     root {{ app_home }}/;
