@@ -1,17 +1,14 @@
-add_header X-Content-Type-Options nosniff;
-add_header X-XSS-Protection "1; mode=block";
-
-map $http_origin $do_cors {
+map $http_origin $allow_origin {
 
   # indicates all map values are hostnames and should be parsed as such
   hostnames;
 
   # default value
-  default 'false';
+  default '';
 
   # all your domains
-  localhost          'true';
-  spotified.netlify.com 'true';
+  ~localhost          $http_origin;
+  ~spotified.netlify.com $http_origin;
 }
 
 upstream varnish {
@@ -47,24 +44,30 @@ server {
     # Set HSTS to 365 days
     add_header Strict-Transport-Security 'max-age=31536000; includeSubDomains; preload' always;
 
-    add_header X-Frame-Options SAMEORIGIN;
-
     ssl_dhparam /etc/nginx/dhparams.pem;
 
     root {{ app_home }}/;
     index index.html index.htm;
 
+    add_header X-Frame-Options SAMEORIGIN;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+
+    add_header 'Access-Control-Allow-Origin' "$allow_origin" always;
+    add_header 'Access-Control-Allow-Credentials' 'true' always;
+    add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+    add_header 'Access-Control-Allow-Headers' 'Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With' always;
+    add_header 'Access-Control-Expose-Headers' 'Authorization' always;
+
     location /api/ {
-        if ($do_cors) {
-            add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+        if ($request_method = 'OPTIONS') {
+            # Tell client that this pre-flight info is valid for 20 days
+            add_header 'Access-Control-Allow-Origin' "$allow_origin" always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
             add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
             add_header 'Access-Control-Allow-Headers' 'Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With' always;
             add_header 'Access-Control-Expose-Headers' 'Authorization' always;
-        }
 
-        if ($request_method = 'OPTIONS') {
-            # Tell client that this pre-flight info is valid for 20 days
             add_header 'Access-Control-Max-Age' 1728000;
             add_header 'Content-Type' 'text/plain charset=UTF-8';
             add_header 'Content-Length' 0;
